@@ -112,9 +112,9 @@ set $workspace3 "4"
 set $workspace5 "5"
 set $workspace6 "6" 
 set $workspace7 "7"
-set $workspace8 "Pure Data"
-set $workspace9 "SuperCollider"
-set $workspace0 "Terminal"
+set $workspace8 "(8) Pure Data"
+set $workspace9 "(9) SuperCollider"
+set $workspace0 "(0) Terminal"
 
 # switch to workspace
 bindsym Control+1 workspace $workspace1
@@ -142,7 +142,7 @@ bindsym Control+Shift+0 move container to workspace $workspace0
 
 assign [class="PdWindow"] $workspace8
 assign [class="scide"] $workspace9
-assign [class="x-terminal-emulator"] $workspace0
+assign [class="X-terminal-emulator"] $workspace0
 
 # reload the configuration file
 bindsym $mod+Shift+c reload

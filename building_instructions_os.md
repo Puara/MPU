@@ -18,6 +18,7 @@
     - [Set SuperCollider systemd service](#set-supercollider-systemd-service)
     - [Set up i3wm](#set-up-i3wm)
     - [Finish and rebooting](#finish-and-rebooting)
+  - [Post-booting tasks](#post-booting-tasks)
 
 ## BOM
 
@@ -321,3 +322,5 @@ echo "rebooting..."
 echo
 sudo reboot
 ```
+
+## Post-booting tasks
