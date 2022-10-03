@@ -40,7 +40,7 @@
 
 ## First configuration
 
-- ssh to the Rpi: `ssh mpu@<ip_address>` or `ssh mpu@mpuXXX.local`
+- Ssh to the Rpi: `ssh mpu@<ip_address>` or `ssh mpu@mpuXXX.local`. You might need to briefly connect a monitor to the Raspberry Pi during the first boot to ensure a display is recognized and the pre-configuration is launched. Once the desktop environment loads it is safe to disconnect the monitor and continue the process through ssh.
 - run `sudo raspi-config`
   - Update
   - Display Options
@@ -51,6 +51,8 @@
     - GPU Memory: 256
   - Localization Options
     - WLAN Country: set to the current country
+  - Advanced Options
+    - Expand Filesystem
   - Finish and reboot
 
 ## Optional: install PiSound drivers if using it
@@ -60,9 +62,8 @@
 
 ## Setting the OS
 
-- Ssh to the Rpi: `ssh mpu@<ip_address>` or `ssh mpu@mpuXXX.local`
 - Clone this repository into the Rpi using `mkdir ~/sources && cd ~/sources && git clone https://github.com/Puara/MPU.git`
-- Navigate to the MPU folder: `cd ~/sources/mpu`
+- Navigate to the MPU folder: `cd ~/sources/MPU`
 - Update the `run_script.sh` by running `sudo chmod +x building_script.sh` and `./building_script.sh XXX`, where XXX must be replaced by the MPU's ID
 - Make **run_script.sh** executable: `sudo chmod +x run_script.sh`
 - Run it with `./run_script.sh`
@@ -72,7 +73,7 @@
 ### Set RealVNC security scheme
 
 ```bash
-echo -e "nmappings\nmappings" | sudo vncpasswd -service
+echo -e "mappings\nmappings" | sudo vncpasswd -service
 sudo sed -i '$a Authentication=VncAuth' /root/.vnc/config.d/vncserver-x11
 ```
 
@@ -82,7 +83,7 @@ sudo sed -i '$a Authentication=VncAuth' /root/.vnc/config.d/vncserver-x11
 
 ```bash
 sudo apt update -y && sudo apt upgrade -y &&\
-sudo apt install -y i3 i3blocks htop vim feh tmux
+sudo apt install -y i3 i3blocks htop vim feh tmux x11-utils
 ```
 
 - Update desktop alternatives and select i3 as the default window manager:
@@ -122,6 +123,8 @@ sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmap
 - Installing SATIE:
 
 ```bash
+cd ~/sources
+git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
 echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 ```
 
@@ -306,7 +309,7 @@ sudo systemctl daemon-reload
 
 ```bash
 mkdir ~/.config/i3
-cp ~/sources/mpu/i3_config ~/.config/i3/config
+cp ~/sources/MPU/i3_config ~/.config/i3/config
 ```
 
 ### Finish and rebooting
