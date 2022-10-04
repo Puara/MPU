@@ -307,11 +307,14 @@ sudo systemctl daemon-reload
 ### Set up i3wm
 
 - Copy i3_config to `~/.config/i3` and rename to `config`:
+- Copy i3blocks.conf  to `~/.config/i3` and rename to `config`:
 
 ```bash
 mkdir ~/.config/i3
 cp ~/sources/MPU/i3_config ~/.config/i3/config
+cp ~/sources/MPU/i3blocks.conf ~/.config/i3/i3blocks.conf
 ```
+
 
 ### Finish and rebooting
 
