@@ -311,7 +311,7 @@ sudo systemctl daemon-reload
 ```bash
 mkdir ~/.config/i3
 cp ~/sources/MPU/i3_config ~/.config/i3/config
-cp ~/sources/MPU/i3blocks.conf ~/.config/i3/i3blocks.conf
+sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 ```
 
