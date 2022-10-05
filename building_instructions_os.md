@@ -18,7 +18,6 @@
     - [Set SuperCollider systemd service](#set-supercollider-systemd-service)
     - [Set up i3wm](#set-up-i3wm)
     - [Finish and rebooting](#finish-and-rebooting)
-  - [Post-booting tasks](#post-booting-tasks)
 
 ## BOM
 
@@ -313,6 +312,7 @@ sudo systemctl daemon-reload
 mkdir ~/.config/i3
 cp ~/sources/MPU/i3_config ~/.config/i3/config
 cp ~/sources/MPU/i3blocks.conf ~/.config/i3/i3blocks.conf
+cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 ```
 
 
@@ -326,4 +326,3 @@ echo
 sudo reboot
 ```
 
-## Post-booting tasks
