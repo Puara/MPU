@@ -123,8 +123,11 @@ bindsym Control+Shift+9 move container to workspace $workspace9
 bindsym Control+Shift+0 move container to workspace $workspace0
 
 assign [class="PdWindow"] $workspace8
+for_window [class="PdWindow"] focus
 assign [class="scide"] $workspace9
+for_window [class="scide"] focus
 assign [class="X-terminal-emulator"] $workspace0
+for_window [class="X-terminal-emulator"] focus
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
