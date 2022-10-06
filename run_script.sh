@@ -72,7 +72,7 @@ echo "Create the hostapd config file:"
 cat <<- "EOF" | sudo tee /etc/hostapd/hostapd.conf
 interface=wlan0
 driver=nl80211
-ssid=MPU005
+ssid=MPUXXX
 hw_mode=g
 channel=6
 macaddr_acl=0
@@ -87,7 +87,7 @@ EOF
 
 echo "Configure a static IP for the wlan0 interface:"
 
-sudo sed -i -e 's/hostname/mpu005/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.4.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
+sudo sed -i -e 's/hostname/mpuXXX/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.4.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
 
 echo "Set hostapd to read the config file:"
 
@@ -122,6 +122,88 @@ sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib
 echo "Then:"
 
 sudo systemctl daemon-reload
+
+# install Apache Guacamole
+
+echo "Reference: [Guacamole manual](https://guacamole.apache.org/doc/gug/)"
+
+echo "Install dependencies:"
+
+sudo apt install -y libcairo2-dev libpng-dev libjpeg62-turbo-dev libtool-bin libossp-uuid-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libtelnet-dev libvncserver-dev libwebsockets-dev libpulse-dev libssl-dev libvorbis-dev libwebp-dev jetty9
+
+echo "Clone git and install (set for version ):"
+
+cd ~/sources
+wget -O guacamole-server-1.4.0.tar.gz "https://apache.org/dyn/closer.lua/guacamole/1.4.0/source/guacamole-server-1.4.0.tar.gz?action=download"
+tar -xzf guacamole-server-1.4.0.tar.gz
+cd guacamole-server-1.4.0
+autoreconf -fi
+./configure --with-init-dir=/etc/init.d
+make
+sudo make install
+sudo update-rc.d guacd defaults
+sudo ldconfig
+cd ~/sources
+wget -O guacamole.war "https://apache.org/dyn/closer.lua/guacamole/1.4.0/binary/guacamole-1.4.0.war?action=download"
+sudo cp ~/sources/guacamole.war /var/lib/jetty9/webapps/guacamole.war
+
+echo "Create Guacamole home:"
+
+sudo mkdir /etc/guacamole
+
+echo "Create \`user-mapping.xml\`"
+
+cat <<- "EOF" | sudo tee /etc/guacamole/user-mapping.xml
+<user-mapping>
+    <authorize
+    username="mpu"
+    password="mappings">
+        <connection name="localhost">
+        <protocol>vnc</protocol>
+        <param name="hostname">localhost</param>
+        <param name="port">5900</param>
+        <param name="password">mappings</param>
+        </connection>
+    </authorize>
+</user-mapping>
+EOF
+
+sudo mv /var/lib/jetty9/webapps/root /var/lib/jetty9/webapps/root-OLD
+sudo mv /var/lib/jetty9/webapps/guacamole.war /var/lib/jetty9/webapps/root.war
+
+echo "Change Guacamole login:"
+
+sudo mkdir /etc/guacamole/extensions
+sudo cp ~/sources/MPU/mpu.jar /etc/guacamole/extensions/mpu.jar
+
+echo "Configure addresses"
+
+sudo apt install apache2 -y
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_balancer
+sudo a2enmod lbmethod_byrequests
+sudo a2enmod rewrite
+sudo mv /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf.bak
+
+cat <<- "EOF" | sudo tee /etc/apache2/sites-available/000-default.conf
+<VirtualHost *:80>
+
+    RewriteEngine on
+    RewriteRule ^/webmapper$ /webmapper/ [R]
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    ProxyPass /webmapper http://127.0.0.1:50000
+    ProxyPassReverse /webmapper http://127.0.0.1:50000
+    ProxyPass / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+
+</VirtualHost>
+EOF
+
+sudo systemctl restart apache2
 
 # Set Jack to start at boot
 

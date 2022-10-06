@@ -264,14 +264,13 @@ EOF
 ```bash
 sudo mv /var/lib/jetty9/webapps/root /var/lib/jetty9/webapps/root-OLD
 sudo mv /var/lib/jetty9/webapps/guacamole.war /var/lib/jetty9/webapps/root.war
-sudo reboot
 ```
 
 - Change Guacamole login:
 
 ```bash
 sudo mkdir /etc/guacamole/extensions
-sudo cp ~sources/MPU/mpu.jar /etc/guacamole/extensions/mpu.jar
+sudo cp ~/sources/MPU/mpu.jar /etc/guacamole/extensions/mpu.jar
 ```
 
 - Configure addresses
