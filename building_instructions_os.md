@@ -13,6 +13,7 @@
     - [Add Metalab's MPA](#add-metalabs-mpa)
     - [Install basic software](#install-basic-software)
     - [Configure AP](#configure-ap)
+    - [install Apache Guacamole](#install-apache-guacamole)
     - [Set Jack to start at boot](#set-jack-to-start-at-boot)
     - [Set Pure Data systemd service](#set-pure-data-systemd-service)
     - [Set SuperCollider systemd service](#set-supercollider-systemd-service)
@@ -64,8 +65,7 @@
 
 - Clone this repository into the Rpi using `mkdir ~/sources && cd ~/sources && git clone https://github.com/Puara/MPU.git`
 - Navigate to the MPU folder: `cd ~/sources/MPU`
-- Update the `run_script.sh` by running `sudo chmod +x building_script.sh` and `./building_script.sh XXX`, where XXX must be replaced by the MPU's ID
-- Make **run_script.sh** executable: `sudo chmod +x run_script.sh`
+- Update the `run_script.sh` by running `sudo chmod +x building_script.sh` and `./building_script.sh XXX`, where XXX must be replaced by the MPU's ID. You will be asked for the sudo password as the script tries to make run_script.sh executable
 - Run it with `./run_script.sh`
 
 ## MPU Script
@@ -208,6 +208,107 @@ sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib
 sudo systemctl daemon-reload
 ```
 
+### install Apache Guacamole
+
+- Reference: [Guacamole manual](https://guacamole.apache.org/doc/gug/)
+
+- Install dependencies:
+
+```bash
+sudo apt install -y libcairo2-dev libpng-dev libjpeg62-turbo-dev libtool-bin libossp-uuid-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libtelnet-dev libvncserver-dev libwebsockets-dev libpulse-dev libssl-dev libvorbis-dev libwebp-dev jetty9
+```
+
+- Clone git and install (set for version ):
+
+```bash
+cd ~/sources
+wget -O guacamole-server-1.4.0.tar.gz "https://apache.org/dyn/closer.lua/guacamole/1.4.0/source/guacamole-server-1.4.0.tar.gz?action=download"
+tar -xzf guacamole-server-1.4.0.tar.gz
+cd guacamole-server-1.4.0
+autoreconf -fi
+./configure --with-init-dir=/etc/init.d
+make
+sudo make install
+sudo update-rc.d guacd defaults
+sudo ldconfig
+cd ~/sources
+wget -O guacamole.war "https://apache.org/dyn/closer.lua/guacamole/1.4.0/binary/guacamole-1.4.0.war?action=download"
+sudo cp ~/sources/guacamole.war /var/lib/jetty9/webapps/guacamole.war
+```
+
+- Create Guacamole home:
+
+```bash
+sudo mkdir /etc/guacamole
+```
+
+- Create `user-mapping.xml`
+
+```bash
+cat <<- "EOF" | sudo tee /etc/guacamole/user-mapping.xml
+<user-mapping>
+    <authorize
+    username="mpu"
+    password="mappings">
+        <connection name="localhost">
+        <protocol>vnc</protocol>
+        <param name="hostname">localhost</param>
+        <param name="port">5900</param>
+        <param name="password">mappings</param>
+        </connection>
+    </authorize>
+</user-mapping>
+EOF
+```
+
+```bash
+sudo mv /var/lib/jetty9/webapps/root /var/lib/jetty9/webapps/root-OLD
+sudo mv /var/lib/jetty9/webapps/guacamole.war /var/lib/jetty9/webapps/root.war
+sudo reboot
+```
+
+- Change Guacamole login:
+
+```bash
+sudo mkdir /etc/guacamole/extensions
+sudo cp ~sources/MPU/mpu.jar /etc/guacamole/extensions/mpu.jar
+```
+
+- Configure addresses
+
+```bash
+sudo apt install apache2 -y
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_balancer
+sudo a2enmod lbmethod_byrequests
+sudo a2enmod rewrite
+sudo mv /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf.bak
+```
+
+```bash
+cat <<- "EOF" | sudo tee /etc/apache2/sites-available/000-default.conf
+<VirtualHost *:80>
+
+    RewriteEngine on
+    RewriteRule ^/webmapper$ /webmapper/ [R]
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    ProxyPass /webmapper http://127.0.0.1:50000
+    ProxyPassReverse /webmapper http://127.0.0.1:50000
+    ProxyPass / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+
+</VirtualHost>
+EOF
+```
+
+```bash
+sudo systemctl restart apache2
+```
+
 ### Set Jack to start at boot
 
 - Add a dbus security policy:
@@ -306,7 +407,7 @@ sudo systemctl daemon-reload
 ### Set up i3wm
 
 - Copy i3_config to `~/.config/i3` and rename to `config`:
-- Copy i3blocks.conf  to `~/.config/i3` and rename to `config`:
+- Copy i3status.conf to `/etc`:
 
 ```bash
 mkdir ~/.config/i3
@@ -314,7 +415,6 @@ cp ~/sources/MPU/i3_config ~/.config/i3/config
 sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 ```
-
 
 ### Finish and rebooting
 
@@ -325,4 +425,3 @@ echo "rebooting..."
 echo
 sudo reboot
 ```
-
