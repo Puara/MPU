@@ -61,6 +61,44 @@ cd ~/sources
 git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
 echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 
+## Install KXStudio software
+
+echo "Install Cadence:"
+
+sudo apt -y install qt5-default pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 ladish python3-rdflib libmagic-dev liblo-dev
+cd ~/sources
+git clone https://github.com/falkTX/Cadence.git
+cd Cadence
+
+echo "Modify the compilation flags in \`Makefile.mk\`:"
+
+sudo sed -i 's/'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
+'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
+'/' c++/Makefile.mk
+
+make
+sudo make install
+
+echo "Install Carla:"
+
+sudo apt install -y liblo-dev ffmpeg libmagic-dev qt5-default pyqt5-dev pyqt5-dev-tools python-pyqt5.qtsvg
+cd ~/sources
+git clone https://github.com/falkTX/Carla
+cd Carla
+
+echo "Modify the compilation flags in \`Makefile.mk\`:"
+
+sudo sed -i 's/'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
+'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
+'/' source/Makefile.mk
+
+make
+sudo make install
+
 # Configure AP
 
 echo "Install dependencies:"
@@ -131,14 +169,14 @@ echo "Install dependencies:"
 
 sudo apt install -y libcairo2-dev libpng-dev libjpeg62-turbo-dev libtool-bin libossp-uuid-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libtelnet-dev libvncserver-dev libwebsockets-dev libpulse-dev libssl-dev libvorbis-dev libwebp-dev jetty9
 
-echo "Clone git and install (set for version ):"
+echo "Clone git and install (set for version 1.4.0):"
 
 cd ~/sources
 wget -O guacamole-server-1.4.0.tar.gz "https://apache.org/dyn/closer.lua/guacamole/1.4.0/source/guacamole-server-1.4.0.tar.gz?action=download"
 tar -xzf guacamole-server-1.4.0.tar.gz
 cd guacamole-server-1.4.0
 autoreconf -fi
-./configure --with-init-dir=/etc/init.d
+./configure
 make
 sudo make install
 sudo update-rc.d guacd defaults
@@ -147,7 +185,7 @@ cd ~/sources
 wget -O guacamole.war "https://apache.org/dyn/closer.lua/guacamole/1.4.0/binary/guacamole-1.4.0.war?action=download"
 sudo cp ~/sources/guacamole.war /var/lib/jetty9/webapps/guacamole.war
 
-echo "Create Guacamole home:"
+echo "Create the Guacamole home:"
 
 sudo mkdir /etc/guacamole
 
@@ -171,7 +209,7 @@ EOF
 sudo mv /var/lib/jetty9/webapps/root /var/lib/jetty9/webapps/root-OLD
 sudo mv /var/lib/jetty9/webapps/guacamole.war /var/lib/jetty9/webapps/root.war
 
-echo "Change Guacamole login:"
+echo "Change Guacamole login screen:"
 
 sudo mkdir /etc/guacamole/extensions
 sudo cp ~/sources/MPU/mpu.jar /etc/guacamole/extensions/mpu.jar
