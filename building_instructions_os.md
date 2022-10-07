@@ -12,6 +12,7 @@
     - [Disable the built-in and HDMI audio](#disable-the-built-in-and-hdmi-audio)
     - [Add Metalab's MPA](#add-metalabs-mpa)
     - [Install basic software](#install-basic-software)
+  - [Install KXStudio software](#install-kxstudio-software)
     - [Configure AP](#configure-ap)
     - [install Apache Guacamole](#install-apache-guacamole)
     - [Set Jack to start at boot](#set-jack-to-start-at-boot)
@@ -128,6 +129,56 @@ git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
 echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 ```
 
+## Install KXStudio software
+
+- Install Cadence:
+
+```bash
+sudo apt -y install qt5-default pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 ladish python3-rdflib libmagic-dev liblo-dev
+cd ~/sources
+git clone https://github.com/falkTX/Cadence.git
+cd Cadence
+```
+
+- Modify the compilation flags in `Makefile.mk`:
+
+```bash
+sudo sed -i 's/'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
+'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
+'/' c++/Makefile.mk
+```
+
+```bash
+make
+sudo make install
+```
+
+- Install Carla:
+
+```bash
+sudo apt install -y liblo-dev ffmpeg libmagic-dev qt5-default pyqt5-dev pyqt5-dev-tools python-pyqt5.qtsvg
+cd ~/sources
+git clone https://github.com/falkTX/Carla
+cd Carla
+```
+
+- Modify the compilation flags in `Makefile.mk`:
+
+```bash
+sudo sed -i 's/'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
+'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
+'/' source/Makefile.mk
+```
+
+```bash
+make
+sudo make install
+```
+
 ### Configure AP
 
 - Install dependencies:
@@ -218,7 +269,7 @@ sudo systemctl daemon-reload
 sudo apt install -y libcairo2-dev libpng-dev libjpeg62-turbo-dev libtool-bin libossp-uuid-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libtelnet-dev libvncserver-dev libwebsockets-dev libpulse-dev libssl-dev libvorbis-dev libwebp-dev jetty9
 ```
 
-- Clone git and install (set for version ):
+- Clone git and install (set for version 1.4.0):
 
 ```bash
 cd ~/sources
@@ -226,7 +277,7 @@ wget -O guacamole-server-1.4.0.tar.gz "https://apache.org/dyn/closer.lua/guacamo
 tar -xzf guacamole-server-1.4.0.tar.gz
 cd guacamole-server-1.4.0
 autoreconf -fi
-./configure --with-init-dir=/etc/init.d
+./configure
 make
 sudo make install
 sudo update-rc.d guacd defaults
@@ -236,7 +287,7 @@ wget -O guacamole.war "https://apache.org/dyn/closer.lua/guacamole/1.4.0/binary/
 sudo cp ~/sources/guacamole.war /var/lib/jetty9/webapps/guacamole.war
 ```
 
-- Create Guacamole home:
+- Create the Guacamole home:
 
 ```bash
 sudo mkdir /etc/guacamole
@@ -266,7 +317,7 @@ sudo mv /var/lib/jetty9/webapps/root /var/lib/jetty9/webapps/root-OLD
 sudo mv /var/lib/jetty9/webapps/guacamole.war /var/lib/jetty9/webapps/root.war
 ```
 
-- Change Guacamole login:
+- Change Guacamole login screen:
 
 ```bash
 sudo mkdir /etc/guacamole/extensions
