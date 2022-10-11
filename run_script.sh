@@ -17,6 +17,14 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
+# First configuration
+
+sudo raspi-config nonint do_vnc 0 &&\
+sudo raspi-config nonint do_vnc_resolution 1920x1080 &&\
+sudo raspi-config nonint do_memory_split 256 &&\
+sudo raspi-config nonint do_wifi_country CA &&\
+sudo raspi-config --expand-rootfs
+
 # Set RealVNC security scheme
 
 echo -e "mappings\nmappings" | sudo vncpasswd -service
@@ -65,7 +73,7 @@ echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 
 echo "Install Cadence:"
 
-sudo apt -y install qt5-default pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 ladish python3-rdflib libmagic-dev liblo-dev
+sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
 cd ~/sources
 git clone https://github.com/falkTX/Cadence.git
 cd Cadence
@@ -83,7 +91,7 @@ sudo make install
 
 echo "Install Carla:"
 
-sudo apt install -y liblo-dev ffmpeg libmagic-dev qt5-default pyqt5-dev pyqt5-dev-tools python-pyqt5.qtsvg
+sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
 cd ~/sources
 git clone https://github.com/falkTX/Carla
 cd Carla

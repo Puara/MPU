@@ -4,9 +4,9 @@
   - [BOM](#bom)
   - [Prepare SD card](#prepare-sd-card)
   - [First configuration](#first-configuration)
-  - [Optional: install PiSound drivers if using it](#optional-install-pisound-drivers-if-using-it)
   - [Setting the OS](#setting-the-os)
   - [MPU Script](#mpu-script)
+    - [First configuration](#first-configuration-1)
     - [Set RealVNC security scheme](#set-realvnc-security-scheme)
     - [Update OS, install basic apps, and install i3wm as an alternative window manager](#update-os-install-basic-apps-and-install-i3wm-as-an-alternative-window-manager)
     - [Disable the built-in and HDMI audio](#disable-the-built-in-and-hdmi-audio)
@@ -25,7 +25,7 @@
 
 - minimal hardware
   - [Raspberry Pi 4 model B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/)
-  - external audio interface
+  - External audio interface. If using the PiSound refer to [https://blokas.io/pisound](https://blokas.io/pisound) for installation instructions
 - software
   - [Custom PREEMPT-RT kernel](RT_kernel.md) (build on 5.10)
   - [Raspberry Pi OS](https://ubuntu.com/download/raspberry-pi)
@@ -39,10 +39,13 @@
   - set hostname: mpuXXX (replace XXX with the MPU's ID)
   - set user and password (mpu/mappings)
   - insert WiFi credential if needed
+- insert the SD card in the Rpi and turn it on
 
 ## First configuration
 
-- Ssh to the Rpi: `ssh mpu@<ip_address>` or `ssh mpu@mpuXXX.local`. You might need to briefly connect a monitor to the Raspberry Pi during the first boot to ensure a display is recognized and the pre-configuration is launched. Once the desktop environment loads it is safe to disconnect the monitor and continue the process through ssh.
+- First configuration for the Raspberry Pi. Information on available ***raspi-config no interactive*** commands can be found at https://github.com/raspberrypi-ui/rc_gui/blob/master/src/rc_gui.c
+
+- Ssh (with the X11-Forwarding flag) to the Rpi: `ssh -X mpu@<ip_address>` or `ssh -X mpu@mpuXXX.local`. The Rpi might take a longer time to be available to ssh during first boot as it is expanding the filesystem
 - run `sudo raspi-config`
   - Update
   - Display Options
@@ -57,19 +60,46 @@
     - Expand Filesystem
   - Finish and reboot
 
-## Optional: install PiSound drivers if using it
+- Alternatively, the following commands can perform the first configuration and reboot the system (except updating the raspi-config tool):
 
-- ssh to the Rpi: `ssh mpu@<ip_address>` or `ssh mpu@mpuXXX.local`
-- Execute `curl https://blokas.io/pisound/install.sh | sh` to add the PiSound audio card drivers
+```bash
+sudo raspi-config nonint do_vnc 0 &&\
+sudo raspi-config nonint do_vnc_resolution 1920x1080 &&\
+sudo raspi-config nonint do_memory_split 256 &&\
+sudo raspi-config nonint do_wifi_country CA &&\
+sudo raspi-config --expand-rootfs &&\
+sudo reboot
+```
 
 ## Setting the OS
 
 - Clone this repository into the Rpi using `mkdir ~/sources && cd ~/sources && git clone https://github.com/Puara/MPU.git`
 - Navigate to the MPU folder: `cd ~/sources/MPU`
 - Update the `run_script.sh` by running `sudo chmod +x building_script.sh` and `./building_script.sh XXX`, where XXX must be replaced by the MPU's ID. You will be asked for the sudo password as the script tries to make run_script.sh executable
-- Run it with `./run_script.sh`
+- Run it with `./run_script.sh`. All steps described in the section [MPU Script](#mpu-script) will be performed by the script
+
+Alternatively (please replace XXX with a unique MPU iD):
+
+```bash
+mkdir ~/sources && cd ~/sources &&\
+git clone https://github.com/Puara/MPU.git &&\
+cd ~/sources/MPU &&\
+sudo chmod +x building_script.sh &&\
+./building_script.sh XXX &&\
+./run_script.sh
+```
 
 ## MPU Script
+
+### First configuration
+
+```bash
+sudo raspi-config nonint do_vnc 0 &&\
+sudo raspi-config nonint do_vnc_resolution 1920x1080 &&\
+sudo raspi-config nonint do_memory_split 256 &&\
+sudo raspi-config nonint do_wifi_country CA &&\
+sudo raspi-config --expand-rootfs
+```
 
 ### Set RealVNC security scheme
 
@@ -134,7 +164,7 @@ echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 - Install Cadence:
 
 ```bash
-sudo apt -y install qt5-default pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 ladish python3-rdflib libmagic-dev liblo-dev
+sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
 cd ~/sources
 git clone https://github.com/falkTX/Cadence.git
 cd Cadence
@@ -158,7 +188,7 @@ sudo make install
 - Install Carla:
 
 ```bash
-sudo apt install -y liblo-dev ffmpeg libmagic-dev qt5-default pyqt5-dev pyqt5-dev-tools python-pyqt5.qtsvg
+sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
 cd ~/sources
 git clone https://github.com/falkTX/Carla
 cd Carla
