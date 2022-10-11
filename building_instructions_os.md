@@ -20,7 +20,7 @@
     - [Set up i3wm](#set-up-i3wm)
     - [Compiling and running JackTrip on the MPU](#compiling-and-running-jacktrip-on-the-mpu)
     - [Adding a service to start JackTrip server](#adding-a-service-to-start-jacktrip-server)
-    - [Adding a service to start JackTrip client (in this example, the server is mpu003.local)](#adding-a-service-to-start-jacktrip-client-in-this-example-the-server-is-mpu003local)
+    - [Adding a service to start JackTrip client](#adding-a-service-to-start-jacktrip-client)
     - [Install aj-snapshot](#install-aj-snapshot)
     - [Mapping using jack in CLI](#mapping-using-jack-in-cli)
     - [Latency tests](#latency-tests)
@@ -528,7 +528,7 @@ systemctl --user daemon-reload
 
 - To enable the service at boot: `systemctl --user enable jacktrip_server.service`
 
-### Adding a service to start JackTrip client (in this example, the server is mpu003.local)
+### Adding a service to start JackTrip client
 
 - Replace the IP address for the server IP.
 
