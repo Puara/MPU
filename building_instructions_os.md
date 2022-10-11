@@ -507,7 +507,7 @@ export JACK_NO_AUDIO_RESERVATION=1
 - OBS: client name is the name of the other machine
 
 ```bash
-cat <<- "EOF" | tee ~/.config/systemd/user/jacktrip_server.service
+cat <<- "EOF" | sudo tee /lib/systemd/system/jacktrip_server.service
 [Unit]
 Description=Run JackTrip server
 After=multi-user.target
@@ -523,18 +523,17 @@ EOF
 ```
 
 ```bash
-sudo chmod 644 ~/.config/systemd/user/jacktrip_server.service
 systemctl --user daemon-reload
 ```
 
-- To enable the service at boot: `systemctl --user enable jacktrip_server.service`
+- To enable the service at boot: `sudo systemctl enable jacktrip_server.service`
 
 ### Adding a service to start JackTrip client
 
 - Replace the IP address for the server IP.
 
 ```bash
-cat <<- "EOF" | tee ~/.config/systemd/user/jacktrip_client.service
+cat <<- "EOF" | tee /lib/systemd/system/jacktrip_client.service
 [Unit]
 Description=Run JackTrip client
 After=multi-user.target
@@ -550,11 +549,10 @@ EOF
 ```
 
 ```bash
-sudo chmod 644 ~/.config/systemd/user/jacktrip_client.service
 systemctl --user daemon-reload
 ```
 
-- If you want to enable the client, disable the service and run `systemctl --user enable jacktrip_client.service`
+- If you want to enable the client, disable the service and run `sudo systemctl enable jacktrip_client.service`
 
 ### Install aj-snapshot
 
