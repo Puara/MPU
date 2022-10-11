@@ -65,6 +65,8 @@ sed -i                                        \
     -e 's/###/#/'                             \
     -e 's/^- .*/&"/'                          \
     -e 's/^- /echo "/'                        \
+    -e 's/^|.*/&"/'                           \
+    -e 's/^|/echo "|/'                        \
     -e "s/mpuXXX/mpu${MPUid}/"                \
     -e "s/MPUXXX/MPU${MPUid}/"                \
     -e 's/`/\\`/g'                            \

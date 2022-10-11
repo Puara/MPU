@@ -19,6 +19,13 @@
     - [Set Pure Data systemd service](#set-pure-data-systemd-service)
     - [Set SuperCollider systemd service](#set-supercollider-systemd-service)
     - [Set up i3wm](#set-up-i3wm)
+    - [Compiling and running JackTrip on the MPU](#compiling-and-running-jacktrip-on-the-mpu)
+    - [Adding a service to start JackTrip server](#adding-a-service-to-start-jacktrip-server)
+    - [Adding a service to start JackTrip client (in this example, the server is mpu003.local)](#adding-a-service-to-start-jacktrip-client-in-this-example-the-server-is-mpu003local)
+    - [Install aj-snapshot](#install-aj-snapshot)
+    - [Mapping using jack in CLI](#mapping-using-jack-in-cli)
+    - [Latency tests](#latency-tests)
+    - [Jack available commands](#jack-available-commands)
     - [Finish and rebooting](#finish-and-rebooting)
 
 ## BOM
@@ -84,8 +91,13 @@ Alternatively (please replace XXX with a unique MPU iD):
 mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
 cd ~/sources/MPU &&\
-sudo chmod +x building_script.sh &&\
-./building_script.sh XXX &&\
+sudo chmod +x building_script.sh
+```
+
+- Run `./building_script.sh XXX`, where XXX must be replaced by the MPU's ID. You will be asked for the sudo password as the script tries to make run_script.sh executable
+
+```bash
+./building_script.sh XXX
 ./run_script.sh
 ```
 
@@ -272,7 +284,7 @@ EOF
 - Modify `/lib/systemd/system/dnsmasq.service` to launch after network get ready:
 
 ```bash
-sed -i '0,/^\s*$/'\
+sudo sed -i '0,/^\s*$/'\
 's//After=network-online.target\nWants=network-online.target\n/' \
 /lib/systemd/system/dnsmasq.service
 ```
@@ -280,13 +292,24 @@ sed -i '0,/^\s*$/'\
 - To prevent a long waiting time during boot, edit `/lib/systemd/system/systemd-networkd-wait-online.service`:
 
 ```bash
-sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib/systemd/system/systemd-networkd-wait-online.service
+sudo sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib/systemd/system/systemd-networkd-wait-online.service
 ```
 
 - Then:
 
 ```bash
 sudo systemctl daemon-reload
+```
+
+- Enable Routing and IP Masquerading
+
+```bash
+cat <<- "EOF" | sudo tee /etc/sysctl.d/routed-ap.conf
+# Enable IPv4 routing
+net.ipv4.ip_forward=1
+EOF
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo netfilter-persistent save
 ```
 
 ### install Apache Guacamole
@@ -495,6 +518,157 @@ cp ~/sources/MPU/i3_config ~/.config/i3/config
 sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 ```
+
+### Compiling and running JackTrip on the MPU
+
+- Dependencies: `sudo apt install libjack-jackd2-dev librtaudio-dev qt5-default`
+- Extra package to test latency: `sudo apt install -y jack-delay`
+
+```bash
+sudo apt install -y libjack-jackd2-dev librtaudio-dev qt5-default jack-delay
+cd ~/sources
+git clone https://github.com/jacktrip/jacktrip.git
+cd ~/sources/jacktrip
+./build
+export JACK_NO_AUDIO_RESERVATION=1
+```
+
+- To manually use as a client with IP address: `./jacktrip -c [xxx.xx.xxx.xxx]`, or with name: `./jacktrip -c mpuXXX.local`
+
+### Adding a service to start JackTrip server
+
+- OBS: client name is the name of the other machine
+
+```bash
+cat <<- "EOF" | tee ~/.config/systemd/user/jacktrip_server.service
+[Unit]
+Description=Run JackTrip server
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -s --clientname jacktrip_client
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+```bash
+sudo chmod 644 ~/.config/systemd/user/jacktrip_server.service
+systemctl --user daemon-reload
+```
+
+- To enable the service at boot: `systemctl --user enable jacktrip_server.service`
+
+### Adding a service to start JackTrip client (in this example, the server is mpu003.local)
+
+- Replace the IP address for the server IP.
+
+```bash
+cat <<- "EOF" | tee ~/.config/systemd/user/jacktrip_client.service
+[Unit]
+Description=Run JackTrip client
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.1.1 --clientname jacktrip_client
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+```bash
+sudo chmod 644 ~/.config/systemd/user/jacktrip_client.service
+systemctl --user daemon-reload
+```
+
+- If you want to enable the client, disable the service and run `systemctl --user enable jacktrip_client.service`
+
+### Install aj-snapshot
+
+- [http://aj-snapshot.sourceforge.net/](http://aj-snapshot.sourceforge.net/)
+
+- Check the last version on the website
+
+```bash
+sudo apt install -y libmxml-dev
+cd ~/sources
+wget http://downloads.sourceforge.net/project/aj-snapshot/aj-snapshot-0.9.9.tar.bz2
+tar -xvjf aj-snapshot-0.9.9.tar.bz2
+cd aj-snapshot-0.9.9
+./configure
+make
+sudo make install
+```
+
+- To create a snapshot: `aj-snapshot -f ~/Documents/default.connections`
+- To remove all Jack connections: `aj-snapshot -xj`
+- To save connections: `sudo aj-snapshot -f ~/Documents/default.connections`
+- To restore connections: `sudo aj-snapshot -r ~/Documents/default.connections`
+
+- Set custom Jack connections to load at boot:
+
+```bash
+cat <<- "EOF" | sudo tee /lib/systemd/system/ajsnapshot.service
+[Unit]
+Description=AJ-Snapshot
+After=sound.target jackaudio.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aj-snapshot -r ~/Documents/default.connections
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+```bash
+sudo systemctl daemon-reload
+```
+
+- If you want to enable the client ajsnapshot to run on boot: `sudo systemctl enable ajsnapshot.service`
+
+### Mapping using jack in CLI
+
+- Check available devices: `cat /proc/asound/cards`. If you have multiple devices available, can call them by name
+- lists jack available ports: `jack_lsp`
+- List informtion and connections on ports: `jack_lsp -c` or `jack_lsp -A`
+- Connect ports: `jack_connect [ -s | --server servername ] [-h | --help ] port1 port2` (The exit status is zero if successful, 1 otherwise)
+- Disconnect ports: `jack_disconnect [ -s | --server servername ] [ -h | --help ] port1 port2`
+
+### Latency tests
+
+- Make sure JackTrip is running.
+
+- Connect the necessary audio cable to create a loopback on the client's audio interface (audio OUT -> audio IN)
+- For the loopback (same interface test): `jack_delay -I system:capture_2 -O system:playback_2`
+- run the test: `jack_delay -O jacktrip_client.local:send_2 -I jacktrip_client.local:receive_2`
+
+### Jack available commands
+
+- To get a list on the computer, type **jack** and hit *Tab*
+
+|command          |command              |command                     |command              |command                 |
+|-----------------|---------------------|----------------------------|---------------------|------------------------|
+| jack_alias      | jack_bufsize        | jack_capture               | jack_capture_gui    | jack_connect           |
+| jackdbus        | jack_disconnect     | jack-dl                    | jack-dssi-host      | jack_evmon             |
+| jack_load       | jack_lsp            | jack_metro                 | jack_midi_dump      | jack_midi_latency_test |
+| jack_net_master | jack_net_slave      | jack_netsource             | jack-osc            | jack-play              |
+| jack_samplerate | jack-scope          | jack_server_control        | jack_session_notify | jack_showtime          |
+| jack_thru       | jack_transport      | jack-transport             | jack-udp            | jack_unload            |
+| jack_control    | jack_cpu            | jack_cpu_load              | jackd               | jack_wait              |
+| jack_freewheel  | jack_iodelay        | jack-keyboard              | jack_latent_client  | jack_midiseq           |
+| jack_midisine   | jack_monitor_client | jack_multiple_metro        | jack-plumbing       |
+| jack-rack       | jack_rec            | jack-record                | jack_test           |
+| jack_simdtests  | jack_simple_client  | jack_simple_session_client | jack_zombie         |
+
+- To check Jack logs: `sudo journalctl -u jack.service`
 
 ### Finish and rebooting
 
