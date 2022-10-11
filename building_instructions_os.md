@@ -60,6 +60,7 @@
 Alternatively, you can copy and paste the code block below:
 
 ```bash
+sudo apt install -y tmux
 mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
 cd ~/sources/MPU &&\
@@ -93,7 +94,7 @@ sudo sed -i '$a Authentication=VncAuth' /root/.vnc/config.d/vncserver-x11
 
 ```bash
 sudo apt update -y && sudo apt upgrade -y &&\
-sudo apt install -y i3 i3blocks htop vim feh tmux x11-utils
+sudo apt install -y i3 i3blocks htop vim feh x11-utils
 ```
 
 - Update desktop alternatives and select i3 as the default window manager:
@@ -491,7 +492,7 @@ cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 - Extra package to test latency: `sudo apt install -y jack-delay`
 
 ```bash
-sudo apt install -y libjack-jackd2-dev librtaudio-dev jack-delay
+sudo apt install -y libjack-jackd2-dev librtaudio-dev jack-delay libqt5websockets5-dev libqt5svg5* libqt5networkauth5-dev
 cd ~/sources
 git clone https://github.com/jacktrip/jacktrip.git
 cd ~/sources/jacktrip
