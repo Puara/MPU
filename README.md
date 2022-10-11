@@ -1,6 +1,6 @@
 # Media processing Unit (MPU)
 
-The Media Processing Unit, or MPU (former SPU) is the core of the [Puara](https://github.com/Puara) framework: it is responsible to receive sensor data from all connected controllers, map devices, and rum embedded synthesis processes.
+The Media Processing Unit, or MPU (former SPU) is the core of the [Puara](https://github.com/Puara) framework: it is responsible to receive sensor data from all connected controllers, mapping devices, and running embedded synthesis processes.
 
 [Media Processing Unit - user guide](./docs/MPU_user_guide.md)
 
@@ -8,9 +8,7 @@ The Media Processing Unit, or MPU (former SPU) is the core of the [Puara](https:
 
 [Media Processing Unit (MPU) - hardware](./building_instructions_hardware.md)
 
-[Media Processing Unit (MPU) - OS (PiSound)](./building_instructions_image_PatchboxOS.md)
-
-[Media Processing Unit (MPU) - OS (FePi)](./building_instructions_image_Fe-Pi.md)
+[Media Processing Unit (MPU) - OS](./building_instructions_os.md)
 
 ### More Info
 
