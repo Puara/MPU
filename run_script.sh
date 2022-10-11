@@ -118,7 +118,7 @@ echo "Create the hostapd config file:"
 cat <<- "EOF" | sudo tee /etc/hostapd/hostapd.conf
 interface=wlan0
 driver=nl80211
-ssid=MPUXXX
+ssid=MPU001
 hw_mode=g
 channel=6
 macaddr_acl=0
@@ -133,7 +133,7 @@ EOF
 
 echo "Configure a static IP for the wlan0 interface:"
 
-sudo sed -i -e 's/hostname/mpuXXX/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.4.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
+sudo sed -i -e 's/hostname/mpu001/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.4.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
 
 echo "Set hostapd to read the config file:"
 
@@ -157,17 +157,26 @@ EOF
 
 echo "Modify \`/lib/systemd/system/dnsmasq.service\` to launch after network get ready:"
 
-sed -i '0,/^\s*$/'\
+sudo sed -i '0,/^\s*$/'\
 's//After=network-online.target\nWants=network-online.target\n/' \
 /lib/systemd/system/dnsmasq.service
 
 echo "To prevent a long waiting time during boot, edit \`/lib/systemd/system/systemd-networkd-wait-online.service\`:"
 
-sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib/systemd/system/systemd-networkd-wait-online.service
+sudo sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib/systemd/system/systemd-networkd-wait-online.service
 
 echo "Then:"
 
 sudo systemctl daemon-reload
+
+echo "Enable Routing and IP Masquerading"
+
+cat <<- "EOF" | sudo tee /etc/sysctl.d/routed-ap.conf
+# Enable IPv4 routing
+net.ipv4.ip_forward=1
+EOF
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo netfilter-persistent save
 
 # install Apache Guacamole
 
@@ -352,7 +361,7 @@ cd ~/sources/jacktrip
 ./build
 export JACK_NO_AUDIO_RESERVATION=1
 
-echo "To manually use as a client with IP address: \`./jacktrip -c [xxx.xx.xxx.xxx]\`, or with name: \`./jacktrip -c mpuXXX.local\`"
+echo "To manually use as a client with IP address: \`./jacktrip -c [xxx.xx.xxx.xxx]\`, or with name: \`./jacktrip -c mpu001.local\`"
 
 # Adding a service to start JackTrip server
 
@@ -389,7 +398,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.1.1 --clientname jacktrip_client
+ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target

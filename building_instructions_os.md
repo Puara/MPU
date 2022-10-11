@@ -333,7 +333,6 @@ autoreconf -fi
 ./configure
 make
 sudo make install
-sudo update-rc.d guacd defaults
 sudo ldconfig
 cd ~/sources
 wget -O guacamole.war "https://apache.org/dyn/closer.lua/guacamole/1.4.0/binary/guacamole-1.4.0.war?action=download"
@@ -575,7 +574,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.1.1 --clientname jacktrip_client
+ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target

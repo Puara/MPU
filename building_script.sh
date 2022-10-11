@@ -40,18 +40,18 @@ trap '"'"'last_command=$current_command; current_command=$BASH_COMMAND'"'"' DEBU
 # echo an error message before exiting\
 trap '"'"'echo "\\"${last_command}\\" command filed with exit code $?."'"'"' EXIT'
 
-if [ -z "$1" ]
-then
-    echo "No argument was provided."
-    echo "The script will be generate using MPUXXX as"
-    echo "the MPU's name."
+MPUid=$1
+
+while [ -z "$MPUid" ]
+do
+    echo "Please enter the MPU ID:"
     echo
-    MPUid=XXX
-else
-    MPUid=$1
-    echo "MPU name: MPU${MPUid}"
-    echo
-fi
+    read MPUid
+done
+
+echo
+echo "MPU name: MPU${MPUid}"
+echo
 
 read -r -s -p $'Press enter to continue...\n\n'
 
