@@ -22,6 +22,7 @@
     - [Adding a service to start JackTrip server](#adding-a-service-to-start-jacktrip-server)
     - [Adding a service to start JackTrip client](#adding-a-service-to-start-jacktrip-client)
     - [Install aj-snapshot](#install-aj-snapshot)
+    - [Make all systemd services available](#make-all-systemd-services-available)
     - [Mapping using jack in CLI](#mapping-using-jack-in-cli)
     - [Latency tests](#latency-tests)
     - [Jack available commands](#jack-available-commands)
@@ -261,11 +262,6 @@ sudo sed -i '0,/^\s*$/'\
 
 ```bash
 sudo sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib/systemd/system/systemd-networkd-wait-online.service
-```
-
-- Then:
-
-```bash
 sudo systemctl daemon-reload
 ```
 
@@ -418,12 +414,6 @@ WantedBy=multi-user.target
 EOF
 ```
 
-```bash
-sudo systemctl daemon-reload &&\
-sudo systemctl enable jackaudio.service &&\
-sudo systemctl start jackaudio.service
-```
-
 - Some commands:
 
 - List information and connections on ports: `jack_lsp -c`
@@ -446,10 +436,6 @@ WantedBy=multi-user.target
 EOF
 ```
 
-```bash
-sudo systemctl daemon-reload
-```
-
 - To enable PD to start at boot: `sudo systemctl enable puredata.service`
 
 ### Set SuperCollider systemd service
@@ -466,10 +452,6 @@ ExecStart=/usr/local/bin/sclang -D ~/Documents/default.scd
 [Install]
 WantedBy=multi-user.target
 EOF
-```
-
-```bash
-sudo systemctl daemon-reload
 ```
 
 - To enable SC to start at boot: `sudo systemctl enable supercollider.service`
@@ -522,10 +504,6 @@ WantedBy=default.target
 EOF
 ```
 
-```bash
-systemctl --user daemon-reload
-```
-
 - To enable the service at boot: `sudo systemctl enable jacktrip_server.service`
 
 ### Adding a service to start JackTrip client
@@ -533,7 +511,7 @@ systemctl --user daemon-reload
 - Replace the IP address for the server IP.
 
 ```bash
-cat <<- "EOF" | tee /lib/systemd/system/jacktrip_client.service
+cat <<- "EOF" | sudo tee /lib/systemd/system/jacktrip_client.service
 [Unit]
 Description=Run JackTrip client
 After=multi-user.target
@@ -546,10 +524,6 @@ ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --client
 [Install]
 WantedBy=default.target
 EOF
-```
-
-```bash
-systemctl --user daemon-reload
 ```
 
 - If you want to enable the client, disable the service and run `sudo systemctl enable jacktrip_client.service`
@@ -593,11 +567,13 @@ WantedBy=multi-user.target
 EOF
 ```
 
+- If you want to enable the client ajsnapshot to run on boot: `sudo systemctl enable ajsnapshot.service`
+
+### Make all systemd services available
+
 ```bash
 sudo systemctl daemon-reload
 ```
-
-- If you want to enable the client ajsnapshot to run on boot: `sudo systemctl enable ajsnapshot.service`
 
 ### Mapping using jack in CLI
 
