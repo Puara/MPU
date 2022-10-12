@@ -17,12 +17,12 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
-# First configuration
+# Setting the OS
 
-sudo raspi-config nonint do_vnc 0 &&\
-sudo raspi-config nonint do_vnc_resolution 1920x1080 &&\
-sudo raspi-config nonint do_memory_split 256 &&\
-sudo raspi-config nonint do_wifi_country CA &&\
+sudo raspi-config nonint do_vnc 0
+sudo raspi-config nonint do_vnc_resolution 1920x1080
+sudo raspi-config nonint do_memory_split 256
+sudo raspi-config nonint do_wifi_country CA
 sudo raspi-config --expand-rootfs
 
 # Set RealVNC security scheme
@@ -35,7 +35,7 @@ echo "The password set by default is \`mappings\`"
 # Update OS, install basic apps, and install i3wm as an alternative window manager
 
 sudo apt update -y && sudo apt upgrade -y &&\
-sudo apt install -y i3 i3blocks htop vim feh tmux x11-utils
+sudo apt install -y i3 i3blocks htop vim feh x11-utils
 
 echo "Update desktop alternatives and select i3 as the default window manager:"
 
@@ -164,9 +164,6 @@ sudo sed -i '0,/^\s*$/'\
 echo "To prevent a long waiting time during boot, edit \`/lib/systemd/system/systemd-networkd-wait-online.service\`:"
 
 sudo sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,' /lib/systemd/system/systemd-networkd-wait-online.service
-
-echo "Then:"
-
 sudo systemctl daemon-reload
 
 echo "Enable Routing and IP Masquerading"
@@ -196,7 +193,6 @@ autoreconf -fi
 ./configure
 make
 sudo make install
-sudo update-rc.d guacd defaults
 sudo ldconfig
 cd ~/sources
 wget -O guacamole.war "https://apache.org/dyn/closer.lua/guacamole/1.4.0/binary/guacamole-1.4.0.war?action=download"
@@ -260,6 +256,26 @@ EOF
 
 sudo systemctl restart apache2
 
+echo "Set guacd to start at boot"
+
+cat <<- "EOF" | sudo tee /lib/systemd/system/guacd.service
+[Unit]
+Description=Run Guacamole server
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+User=mpu
+ExecStart=/usr/local/sbin/guacd -b 127.0.0.1 -f
+
+[Install]
+WantedBy=default.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable guacd
+sudo systemctl start guacd
+
 # Set Jack to start at boot
 
 echo "Add a dbus security policy:"
@@ -293,10 +309,6 @@ ExecStart=/usr/bin/jackd -P50 -t2000 -dalsa -dhw:1 -p128 -n2 -r48000 -s &
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload &&\
-sudo systemctl enable jackaudio.service &&\
-sudo systemctl start jackaudio.service
-
 echo "Some commands:"
 
 echo "List information and connections on ports: \`jack_lsp -c\`"
@@ -317,8 +329,6 @@ ExecStart=/usr/local/bin/pd -nogui -noprefs -rt -jack -inchannels 8 -outchannels
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-
 echo "To enable PD to start at boot: \`sudo systemctl enable puredata.service\`"
 
 # Set SuperCollider systemd service
@@ -335,8 +345,6 @@ ExecStart=/usr/local/bin/sclang -D ~/Documents/default.scd
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-
 echo "To enable SC to start at boot: \`sudo systemctl enable supercollider.service\`"
 
 # Set up i3wm
@@ -348,13 +356,14 @@ mkdir ~/.config/i3
 cp ~/sources/MPU/i3_config ~/.config/i3/config
 sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
+sudo sed -i -e "s/MPU/MPU001/" /etc/i3status.conf
 
 # Compiling and running JackTrip on the MPU
 
-echo "Dependencies: \`sudo apt install libjack-jackd2-dev librtaudio-dev qt5-default\`"
+echo "Dependencies: \`sudo apt install libjack-jackd2-dev librtaudio-dev\`"
 echo "Extra package to test latency: \`sudo apt install -y jack-delay\`"
 
-sudo apt install -y libjack-jackd2-dev librtaudio-dev qt5-default jack-delay
+sudo apt install -y libjack-jackd2-dev librtaudio-dev jack-delay libqt5websockets5-dev libqt5svg5* libqt5networkauth5-dev
 cd ~/sources
 git clone https://github.com/jacktrip/jacktrip.git
 cd ~/sources/jacktrip
@@ -367,7 +376,7 @@ echo "To manually use as a client with IP address: \`./jacktrip -c [xxx.xx.xxx.x
 
 echo "OBS: client name is the name of the other machine"
 
-cat <<- "EOF" | tee ~/.config/systemd/user/jacktrip_server.service
+cat <<- "EOF" | sudo tee /lib/systemd/system/jacktrip_server.service
 [Unit]
 Description=Run JackTrip server
 After=multi-user.target
@@ -381,16 +390,13 @@ ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -s --clientname jacktri
 WantedBy=default.target
 EOF
 
-sudo chmod 644 ~/.config/systemd/user/jacktrip_server.service
-systemctl --user daemon-reload
+echo "To enable the service at boot: \`sudo systemctl enable jacktrip_server.service\`"
 
-echo "To enable the service at boot: \`systemctl --user enable jacktrip_server.service\`"
-
-# Adding a service to start JackTrip client (in this example, the server is mpu003.local)
+# Adding a service to start JackTrip client
 
 echo "Replace the IP address for the server IP."
 
-cat <<- "EOF" | tee ~/.config/systemd/user/jacktrip_client.service
+cat <<- "EOF" | sudo tee /lib/systemd/system/jacktrip_client.service
 [Unit]
 Description=Run JackTrip client
 After=multi-user.target
@@ -404,10 +410,7 @@ ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --client
 WantedBy=default.target
 EOF
 
-sudo chmod 644 ~/.config/systemd/user/jacktrip_client.service
-systemctl --user daemon-reload
-
-echo "If you want to enable the client, disable the service and run \`systemctl --user enable jacktrip_client.service\`"
+echo "If you want to enable the client, disable the service and run \`sudo systemctl enable jacktrip_client.service\`"
 
 # Install aj-snapshot
 
@@ -444,9 +447,11 @@ ExecStart=/usr/local/bin/aj-snapshot -r ~/Documents/default.connections
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl daemon-reload
-
 echo "If you want to enable the client ajsnapshot to run on boot: \`sudo systemctl enable ajsnapshot.service\`"
+
+# Make all systemd services available
+
+sudo systemctl daemon-reload
 
 # Mapping using jack in CLI
 

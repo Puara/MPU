@@ -74,10 +74,10 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
+bindsym $mod+m floating toggle
 
 # change focus between tiling / floating windows
-bindsym $mod+space focus mode_toggle
+#bindsym $mod+space focus mode_toggle
 
 # focus the parent container
 bindsym $mod+a focus parent
@@ -89,14 +89,14 @@ bindsym $mod+a focus parent
 # We use variables to avoid repeating the names in multiple places.
 set $workspace1 "1"
 set $workspace2 "2"
-set $workspace3 "3"
-set $workspace3 "(4) Session"
-set $workspace5 "(5) Cadence"
-set $workspace6 "(6) Carla" 
-set $workspace7 "(7) Catia"
-set $workspace8 "(8) Pure Data"
-set $workspace9 "(9) SuperCollider"
-set $workspace0 "(0) Terminal"
+set $workspace3 "3-Jack"
+set $workspace3 "4-Session"
+set $workspace5 "5-Cadence"
+set $workspace6 "6-Carla" 
+set $workspace7 "7-Catia"
+set $workspace8 "8-Pure Data"
+set $workspace9 "9-SuperCollider"
+set $workspace0 "0-Terminal"
 
 # switch to workspace
 bindsym Control+1 workspace $workspace1
@@ -122,6 +122,8 @@ bindsym Control+Shift+8 move container to workspace $workspace8
 bindsym Control+Shift+9 move container to workspace $workspace9
 bindsym Control+Shift+0 move container to workspace $workspace0
 
+assign [class="QjackCtl"] $workspace3
+for_window [class="QjackCtl"] focus
 assign [class="Claudia"] $workspace4
 for_window [class="Claudia"] focus
 assign [class="Cadence"] $workspace5
@@ -141,6 +143,7 @@ for_window [class="X-terminal-emulator"] focus
 
 for_window [class="PdWindow"] floating enable
 for_window [class="PatchWindow"] floating enable
+for_window [class="QjackCtl"] floating enable
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -187,3 +190,6 @@ exec feh --bg-scale --no-fehbg ~/Pictures/wallpaper.png
 
 # startup programs
 exec claudia
+
+# set fixed resolution for headless use
+exec "if  xrandr | grep -q \" connected \" ; then xrandr --fb 1280x800; fi"

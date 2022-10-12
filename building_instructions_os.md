@@ -375,6 +375,28 @@ EOF
 sudo systemctl restart apache2
 ```
 
+- Set guacd to start at boot
+
+```bash
+cat <<- "EOF" | sudo tee /lib/systemd/system/guacd.service
+[Unit]
+Description=Run Guacamole server
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+User=mpu
+ExecStart=/usr/local/sbin/guacd -b 127.0.0.1 -f
+
+[Install]
+WantedBy=default.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable guacd
+sudo systemctl start guacd
+```
+
 ### Set Jack to start at boot
 
 - Add a dbus security policy:
@@ -466,6 +488,7 @@ mkdir ~/.config/i3
 cp ~/sources/MPU/i3_config ~/.config/i3/config
 sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
+sudo sed -i -e "s/MPU/MPUXXX/" /etc/i3status.conf
 ```
 
 ### Compiling and running JackTrip on the MPU

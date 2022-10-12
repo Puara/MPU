@@ -42,6 +42,7 @@ sudo sed -i -e "s/MPU.\{3\}/MPU${MPUid}/" /etc/hostapd/hostapd.conf
 
 sudo sed -i -e "s/mpu.\{3\}/mpu${MPUid}/" /etc/dhcpcd.conf
 
+sudo sed -i -e "s/MPU.\{3\}/MPU${MPUid}/" /etc/i3status.conf
 
 echo "Done renaming the MPU."
 echo
