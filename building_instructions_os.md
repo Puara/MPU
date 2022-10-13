@@ -11,7 +11,7 @@
     - [Disable the built-in and HDMI audio](#disable-the-built-in-and-hdmi-audio)
     - [Add Metalab's MPA](#add-metalabs-mpa)
     - [Install basic software](#install-basic-software)
-  - [Install KXStudio software](#install-kxstudio-software)
+  - [Install KXStudio Carla](#install-kxstudio-carla)
     - [Configure AP](#configure-ap)
     - [install Apache Guacamole](#install-apache-guacamole)
     - [Set Jack to start at boot](#set-jack-to-start-at-boot)
@@ -140,46 +140,9 @@ git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
 echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 ```
 
-## Install KXStudio software
+## Install KXStudio Carla
 
-- Install ladish
-
-```bash
-sudo apt install -y gettext
-cd ~/sources
-git clone https://github.com/LADI/ladish.git
-cd ~/sources/ladish
-
-PAREI AQUI https://github.com/LADI/ladish/blob/master/INSTALL
-
-./waf configure
-```
-
-- Install Cadence:
-
-```bash
-sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
-cd ~/sources
-git clone https://github.com/falkTX/Cadence.git
-cd Cadence
-```
-
-- Modify the compilation flags in `Makefile.mk`:
-
-```bash
-sudo sed -i 's/'\
-'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
-'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
-'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
-'/' c++/Makefile.mk
-```
-
-```bash
-make
-sudo make install
-```
-
-- Install Carla:
+- Install Carla (more info at https://github.com/falkTX/Carla):
 
 ```bash
 sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
@@ -291,6 +254,7 @@ sudo netfilter-persistent save
 
 ### install Apache Guacamole
 
+- More info at https://guacamole.apache.org
 - Reference: [Guacamole manual](https://guacamole.apache.org/doc/gug/)
 
 - Install dependencies:
@@ -330,7 +294,7 @@ cat <<- "EOF" | sudo tee /etc/guacamole/user-mapping.xml
     <authorize
     username="mpu"
     password="mappings">
-        <connection name="localhost">
+        <connection name="MPU">
         <protocol>vnc</protocol>
         <param name="hostname">localhost</param>
         <param name="port">5900</param>
@@ -506,6 +470,7 @@ sudo sed -i -e "s/MPU/MPUXXX/" /etc/i3status.conf
 
 ### Compiling and running JackTrip on the MPU
 
+- More info at https://www.jacktrip.org/
 - Dependencies: `sudo apt install libjack-jackd2-dev librtaudio-dev`
 - Extra package to test latency: `sudo apt install -y jack-delay`
 
@@ -566,7 +531,7 @@ EOF
 
 ### Install aj-snapshot
 
-- [http://aj-snapshot.sourceforge.net/](http://aj-snapshot.sourceforge.net/)
+- More info at [http://aj-snapshot.sourceforge.net/](http://aj-snapshot.sourceforge.net/)
 
 - Check the last version on the website
 
