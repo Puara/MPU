@@ -192,4 +192,4 @@ exec feh --bg-scale --no-fehbg ~/Pictures/wallpaper.png
 exec claudia
 
 # set fixed resolution for headless use
-exec "if  xrandr | grep -q \" connected \" ; then xrandr --fb 1280x800; fi"
+exec "if ! xrandr | grep -q \\" connected \\" ; then xrandr --fb 1280x800; fi"

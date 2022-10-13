@@ -142,6 +142,19 @@ echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 
 ## Install KXStudio software
 
+- Install ladish
+
+```bash
+sudo apt install -y gettext
+cd ~/sources
+git clone https://github.com/LADI/ladish.git
+cd ~/sources/ladish
+
+PAREI AQUI https://github.com/LADI/ladish/blob/master/INSTALL
+
+./waf configure
+```
+
 - Install Cadence:
 
 ```bash
