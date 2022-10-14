@@ -2,6 +2,8 @@
 
 The Media Processing Unit, or MPU (former SPU) is the core of the [Puara](https://github.com/Puara) framework: it is responsible to receive sensor data from all connected controllers, mapping devices, and running embedded synthesis processes.
 
+This project is developed and maintained in a partnership between [SAT/Metalab](https://sat.qc.ca/fr/recherche/metalab) and [IDMIL](http://www-new.idmil.org/).
+
 [Media Processing Unit - user guide](./docs/MPU_user_guide.md)
 
 ## Building instructions
