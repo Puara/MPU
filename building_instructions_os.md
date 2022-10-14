@@ -10,10 +10,10 @@
     - [Update OS, install basic apps, and install i3wm as an alternative window manager](#update-os-install-basic-apps-and-install-i3wm-as-an-alternative-window-manager)
     - [Disable the built-in and HDMI audio](#disable-the-built-in-and-hdmi-audio)
     - [Add Metalab's MPA](#add-metalabs-mpa)
-    - [Install basic software](#install-basic-software)
-  - [Install KXStudio Carla](#install-kxstudio-carla)
     - [Configure AP](#configure-ap)
     - [install Apache Guacamole](#install-apache-guacamole)
+    - [Install basic software](#install-basic-software)
+  - [Install KXStudio software](#install-kxstudio-software)
     - [Set Jack to start at boot](#set-jack-to-start-at-boot)
     - [Set Pure Data systemd service](#set-pure-data-systemd-service)
     - [Set SuperCollider systemd service](#set-supercollider-systemd-service)
@@ -122,48 +122,6 @@ echo 'deb [ arch=arm64, signed-by=/usr/share/keyrings/sat-metalab-mpa-keyring.gp
     | sudo tee /etc/apt/sources.list.d/sat-metalab-mpa.list && \
 sudo apt update &&\
 sudo apt upgrade -y
-```
-
-### Install basic software
-
-- Installing SuperCollider, SC3-Plugins, jackd2 (if needed):
-
-```bash
-sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 puredata
-```
-
-- Installing SATIE:
-
-```bash
-cd ~/sources
-git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
-echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
-```
-
-## Install KXStudio Carla
-
-- Install Carla (more info at https://github.com/falkTX/Carla):
-
-```bash
-sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib 
-cd ~/sources
-git clone https://github.com/falkTX/Carla
-cd Carla
-```
-
-- Modify the compilation flags in `Makefile.mk`:
-
-```bash
-sudo sed -i 's/'\
-'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
-'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
-'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
-'/' source/Makefile.mk
-```
-
-```bash
-make
-sudo make install
 ```
 
 ### Configure AP
@@ -372,6 +330,72 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable guacd
 sudo systemctl start guacd
+```
+
+### Install basic software
+
+- Installing SuperCollider, SC3-Plugins, jackd2 (if needed):
+
+```bash
+sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 puredata
+```
+
+- Installing SATIE:
+
+```bash
+cd ~/sources
+git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
+echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
+```
+
+## Install KXStudio software
+
+- Install Cadence:
+
+```bash
+sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
+cd ~/sources
+git clone https://github.com/falkTX/Cadence.git
+cd Cadence
+```
+
+- Modify the compilation flags in `Makefile.mk`:
+
+```bash
+sudo sed -i 's/'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
+'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
+'/' c++/Makefile.mk
+```
+
+```bash
+make
+sudo make install
+```
+
+- Install Carla:
+
+```bash
+sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
+cd ~/sources
+git clone https://github.com/falkTX/Carla
+cd Carla
+```
+
+- Modify the compilation flags in `Makefile.mk`:
+
+```bash
+sudo sed -i 's/'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
+'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
+'/' source/Makefile.mk
+```
+
+```bash
+make
+sudo make install
 ```
 
 ### Set Jack to start at boot
