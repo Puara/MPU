@@ -145,7 +145,7 @@ echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
 - Install Carla (more info at https://github.com/falkTX/Carla):
 
 ```bash
-sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
+sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib 
 cd ~/sources
 git clone https://github.com/falkTX/Carla
 cd Carla
