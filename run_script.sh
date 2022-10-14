@@ -57,56 +57,6 @@ echo 'deb [ arch=arm64, signed-by=/usr/share/keyrings/sat-metalab-mpa-keyring.gp
 sudo apt update &&\
 sudo apt upgrade -y
 
-# Install basic software
-
-echo "Installing SuperCollider, SC3-Plugins, jackd2 (if needed):"
-
-sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 puredata
-
-echo "Installing SATIE:"
-
-cd ~/sources
-git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
-echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
-
-## Install KXStudio software
-
-echo "Install Cadence:"
-
-sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
-cd ~/sources
-git clone https://github.com/falkTX/Cadence.git
-cd Cadence
-
-echo "Modify the compilation flags in \`Makefile.mk\`:"
-
-sudo sed -i 's/'\
-'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
-'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
-'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
-'/' c++/Makefile.mk
-
-make
-sudo make install
-
-echo "Install Carla:"
-
-sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
-cd ~/sources
-git clone https://github.com/falkTX/Carla
-cd Carla
-
-echo "Modify the compilation flags in \`Makefile.mk\`:"
-
-sudo sed -i 's/'\
-'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
-'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
-'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
-'/' source/Makefile.mk
-
-make
-sudo make install
-
 # Configure AP
 
 echo "Install dependencies:"
@@ -177,6 +127,7 @@ sudo netfilter-persistent save
 
 # install Apache Guacamole
 
+echo "More info at https://guacamole.apache.org"
 echo "Reference: [Guacamole manual](https://guacamole.apache.org/doc/gug/)"
 
 echo "Install dependencies:"
@@ -209,7 +160,7 @@ cat <<- "EOF" | sudo tee /etc/guacamole/user-mapping.xml
     <authorize
     username="mpu"
     password="mappings">
-        <connection name="localhost">
+        <connection name="MPU">
         <protocol>vnc</protocol>
         <param name="hostname">localhost</param>
         <param name="port">5900</param>
@@ -275,6 +226,56 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable guacd
 sudo systemctl start guacd
+
+# Install basic software
+
+echo "Installing SuperCollider, SC3-Plugins, jackd2 (if needed):"
+
+sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 puredata
+
+echo "Installing SATIE:"
+
+cd ~/sources
+git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
+echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
+
+## Install KXStudio software
+
+echo "Install Cadence:"
+
+sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
+cd ~/sources
+git clone https://github.com/falkTX/Cadence.git
+cd Cadence
+
+echo "Modify the compilation flags in \`Makefile.mk\`:"
+
+sudo sed -i 's/'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
+'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
+'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
+'/' c++/Makefile.mk
+
+make
+sudo make install
+
+echo "Install Carla:"
+
+sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
+cd ~/sources
+git clone https://github.com/falkTX/Carla
+cd Carla
+
+echo "Modify the compilation flags in \`Makefile.mk\`:"
+
+sudo sed -i 's/'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
+'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
+'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
+'/' source/Makefile.mk
+
+make
+sudo make install
 
 # Set Jack to start at boot
 
@@ -360,6 +361,7 @@ sudo sed -i -e "s/MPU/MPU001/" /etc/i3status.conf
 
 # Compiling and running JackTrip on the MPU
 
+echo "More info at https://www.jacktrip.org/"
 echo "Dependencies: \`sudo apt install libjack-jackd2-dev librtaudio-dev\`"
 echo "Extra package to test latency: \`sudo apt install -y jack-delay\`"
 
@@ -414,7 +416,7 @@ echo "If you want to enable the client, disable the service and run \`sudo syste
 
 # Install aj-snapshot
 
-echo "[http://aj-snapshot.sourceforge.net/](http://aj-snapshot.sourceforge.net/)"
+echo "More info at [http://aj-snapshot.sourceforge.net/](http://aj-snapshot.sourceforge.net/)"
 
 echo "Check the last version on the website"
 
