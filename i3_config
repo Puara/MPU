@@ -87,10 +87,10 @@ bindsym $mod+a focus parent
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
-set $workspace1 "1"
-set $workspace2 "2"
-set $workspace3 "3-Jack"
-set $workspace3 "4-Session"
+set $workspace1 "1-Jack Graph"
+set $workspace2 "2-Jack Patchbay"
+set $workspace3 "3-Jack Control"
+set $workspace4 "4-Session"
 set $workspace5 "5-Cadence"
 set $workspace6 "6-Carla" 
 set $workspace7 "7-Catia"
@@ -122,8 +122,11 @@ bindsym Control+Shift+8 move container to workspace $workspace8
 bindsym Control+Shift+9 move container to workspace $workspace9
 bindsym Control+Shift+0 move container to workspace $workspace0
 
-assign [class="QjackCtl"] $workspace3
+assign [class="QjackCtl" title="Graph*"] $workspace1
+assign [class="QjackCtl" title="Patchbay*"] $workspace2
+assign [class="QjackCtl" title="JACK Audio Connection Kit*"] $workspace3
 for_window [class="QjackCtl"] focus
+
 assign [class="Claudia"] $workspace4
 for_window [class="Claudia"] focus
 assign [class="Cadence"] $workspace5
@@ -143,7 +146,8 @@ for_window [class="X-terminal-emulator"] focus
 
 for_window [class="PdWindow"] floating enable
 for_window [class="PatchWindow"] floating enable
-for_window [class="QjackCtl"] floating enable
+for_window [class="QjackCtl" title="JACK Audio Connection Kit*"] floating enable
+
 
 # reload the configuration file
 bindsym $mod+Shift+c reload

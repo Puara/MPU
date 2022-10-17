@@ -22,6 +22,7 @@
     - [Adding a service to start JackTrip server](#adding-a-service-to-start-jacktrip-server)
     - [Adding a service to start JackTrip client](#adding-a-service-to-start-jacktrip-client)
     - [Install aj-snapshot](#install-aj-snapshot)
+    - [Install Samba server](#install-samba-server)
     - [Make all systemd services available](#make-all-systemd-services-available)
     - [Mapping using jack in CLI](#mapping-using-jack-in-cli)
     - [Latency tests](#latency-tests)
@@ -95,7 +96,7 @@ sudo sed -i '$a Authentication=VncAuth' /root/.vnc/config.d/vncserver-x11
 
 ```bash
 sudo apt update -y && sudo apt upgrade -y &&\
-sudo apt install -y i3 i3blocks htop vim feh x11-utils
+sudo apt install -y i3 i3blocks htop vim feh x11-utils git git-lfs
 ```
 
 - Update desktop alternatives and select i3 as the default window manager:
@@ -430,7 +431,7 @@ After=sound.target
 [Service]
 User=mpu
 Environment="JACK_NO_AUDIO_RESERVATION=1"
-ExecStart=/usr/bin/jackd -P50 -t2000 -dalsa -dhw:1 -p128 -n2 -r48000 -s &
+ExecStart=/usr/bin/jackd -P80 -t2000 -dalsa -dhw:1 -p256 -n2 -r48000 -s &
 
 [Install]
 WantedBy=multi-user.target
@@ -522,7 +523,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -s --clientname jacktrip_client
+ExecStart=/home/mpu/sources/jacktrip/builddir/jacktrip -s --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target
@@ -544,7 +545,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=/home/patch/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
+ExecStart=/home/mpu/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target
@@ -594,6 +595,51 @@ EOF
 
 - If you want to enable the client ajsnapshot to run on boot: `sudo systemctl enable ajsnapshot.service`
 
+### Install Samba server
+
+- OBS: Choose *No* if asked **Modify smb.conf to use WINS settings from DHCP?**
+
+```bash
+sudo apt install -y samba
+sudo systemctl stop smbd.service
+sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.orig
+```
+
+- Create Samba configuration file and set the user:
+
+```bash
+cat <<- "EOF" | sudo tee /etc/samba/smb.conf
+[global]
+        server string = MPU
+        server role = standalone server
+        interfaces = lo eth0 wlan0
+        bind interfaces only = yes
+        smb ports = 445
+        log file = /var/log/samba/smb.log
+        max log size = 10000
+        map to guest = bad user
+
+[Documents]
+        path = "/home/mpu/Documents"
+        read only = no
+        browsable = yes
+        valid users = mpu
+        vfs objects = recycle
+        recycle:repository = .recycle
+        recycle:touch = Yes
+        recycle:keeptree = Yes
+        recycle:versions = Yes
+        recycle:noversions = *.tmp,*.temp,*.o,*.obj,*.TMP,*.TEMP
+        recycle:exclude = *.tmp,*.temp,*.o,*.obj,*.TMP,*.TEMP
+        recycle:excludedir = /.recycle,/tmp,/temp,/TMP,/TEMP
+
+EOF
+(echo mappings; echo mappings) | sudo smbpasswd -a mpu
+sudo smbpasswd -e mpu
+sudo systemctl start smbd.service
+sudo systemctl enable smbd.service
+```
+
 ### Make all systemd services available
 
 ```bash
@@ -603,8 +649,8 @@ sudo systemctl daemon-reload
 ### Mapping using jack in CLI
 
 - Check available devices: `cat /proc/asound/cards`. If you have multiple devices available, can call them by name
-- lists jack available ports: `jack_lsp`
-- List informtion and connections on ports: `jack_lsp -c` or `jack_lsp -A`
+- Lists jack available ports: `jack_lsp`
+- List information and connections on ports: `jack_lsp -c` or `jack_lsp -A`
 - Connect ports: `jack_connect [ -s | --server servername ] [-h | --help ] port1 port2` (The exit status is zero if successful, 1 otherwise)
 - Disconnect ports: `jack_disconnect [ -s | --server servername ] [ -h | --help ] port1 port2`
 
