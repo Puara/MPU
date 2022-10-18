@@ -186,14 +186,15 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
+    font pango:DejaVu Sans Mono, FontAwesome
     status_command i3status
 }
 
 # set wallpaper
 exec feh --bg-scale --no-fehbg ~/Pictures/wallpaper.png
 
-# startup programs
-exec claudia
-
 # set fixed resolution for headless use
 exec "if ! xrandr | grep -q \\" connected \\" ; then xrandr --fb 1280x800; fi"
+
+# startup programs
+exec ~/Documents/startup_programs.sh

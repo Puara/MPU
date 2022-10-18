@@ -96,7 +96,7 @@ sudo sed -i '$a Authentication=VncAuth' /root/.vnc/config.d/vncserver-x11
 
 ```bash
 sudo apt update -y && sudo apt upgrade -y &&\
-sudo apt install -y i3 i3blocks htop vim feh x11-utils git git-lfs
+sudo apt install -y i3 i3blocks htop vim feh x11-utils git git-lfs fonts-font-awesome
 ```
 
 - Update desktop alternatives and select i3 as the default window manager:
@@ -491,7 +491,11 @@ cp ~/sources/MPU/i3_config ~/.config/i3/config
 sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 sudo sed -i -e "s/MPU/MPUXXX/" /etc/i3status.conf
+cp ~/sources/MPU/startup_programs.sh ~/Documents/startup_programs.sh
+sudo chmod +x ~/Documents/startup_programs.sh
 ```
+
+- OBS: for checking Font Awesome: https://fontawesome.com/v5/cheatsheet
 
 ### Compiling and running JackTrip on the MPU
 
@@ -569,6 +573,7 @@ cd aj-snapshot-0.9.9
 ./configure
 make
 sudo make install
+cp ~/souces/MPU/default.connections ~/Documents/default.connections
 ```
 
 - To create a snapshot: `aj-snapshot -f ~/Documents/default.connections`
@@ -613,7 +618,7 @@ cat <<- "EOF" | sudo tee /etc/samba/smb.conf
         server string = MPU
         server role = standalone server
         interfaces = lo eth0 wlan0
-        bind interfaces only = yes
+        bind interfaces only = no
         smb ports = 445
         log file = /var/log/samba/smb.log
         max log size = 10000
