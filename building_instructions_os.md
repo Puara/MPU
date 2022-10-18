@@ -498,8 +498,6 @@ cp ~/sources/MPU/i3_config ~/.config/i3/config
 sudo cp ~/sources/MPU/i3status.conf /etc/i3status.conf
 cp ~/sources/MPU/wallpaper.png ~/Pictures/wallpaper.png
 sudo sed -i -e "s/MPU/MPUXXX/" /etc/i3status.conf
-cp ~/sources/MPU/startup_programs.sh ~/Documents/startup_programs.sh
-sudo chmod +x ~/Documents/startup_programs.sh
 ```
 
 - OBS: for checking Font Awesome: https://fontawesome.com/v5/cheatsheet
