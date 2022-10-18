@@ -194,4 +194,4 @@ bar {
 exec feh --bg-scale --no-fehbg ~/Pictures/wallpaper.png
 
 # set fixed resolution for headless use
-exec "if ! xrandr | grep -q \\" connected \\" ; then xrandr --fb 1280x800; fi"
+exec --no-startup-id "if ! xrandr | grep -q \\" connected \\" ; then xrandr --fb 1280x800; fi"
