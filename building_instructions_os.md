@@ -436,6 +436,9 @@ ExecStart=/usr/bin/jackd -P80 -t2000 -dalsa -dhw:1 -p256 -n2 -r48000 -s &
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo systemctl daemon-reload
+sudo systemctl enable jackaudio.service
+sudo systemctl start jackaudio.service
 ```
 
 - Some commands:
@@ -451,16 +454,18 @@ cat <<- "EOF" | sudo tee /lib/systemd/system/puredata.service
 [Unit]
 Description=Pure Data
 After=sound.target jackaudio.service
+ConditionPathExists=~/Documents/default.pd
 
 [Service]
-ExecStart=/usr/local/bin/pd -nogui -noprefs -rt -jack -inchannels 8 -outchannels 8 ~/Documents/default.pd
+ExecStart=/usr/local/bin/pd -nogui -noprefs -rt -jack -inchannels 2 -outchannels 2 ~/Documents/default.pd
 
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo systemctl daemon-reload
+sudo systemctl enable puredata.service
+sudo systemctl start puredata.service
 ```
-
-- To enable PD to start at boot: `sudo systemctl enable puredata.service`
 
 ### Set SuperCollider systemd service
 
@@ -469,6 +474,7 @@ cat <<- "EOF" | sudo tee /lib/systemd/system/supercollider.service
 [Unit]
 Description=SuperCollider
 After=sound.target jackaudio.service
+ConditionPathExists=~/Documents/default.scd
 
 [Service]
 ExecStart=/usr/local/bin/sclang -D ~/Documents/default.scd
@@ -476,9 +482,10 @@ ExecStart=/usr/local/bin/sclang -D ~/Documents/default.scd
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo systemctl daemon-reload
+sudo systemctl enable supercollider.service
+sudo systemctl start supercollider.service
 ```
-
-- To enable SC to start at boot: `sudo systemctl enable supercollider.service`
 
 ### Set up i3wm
 
@@ -527,7 +534,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=/home/mpu/sources/jacktrip/builddir/jacktrip -s --clientname jacktrip_client
+ExecStart=~/sources/jacktrip/builddir/jacktrip -s --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target
@@ -549,7 +556,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=/home/mpu/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
+ExecStart=~/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target
@@ -588,17 +595,22 @@ cat <<- "EOF" | sudo tee /lib/systemd/system/ajsnapshot.service
 [Unit]
 Description=AJ-Snapshot
 After=sound.target jackaudio.service
+ConditionPathExists=~/Documents/default.connections
 
 [Service]
-Type=oneshot
-ExecStart=/usr/local/bin/aj-snapshot -r ~/Documents/default.connections
+Type=idle
+Restart=always
+ExecStart=/usr/local/bin/aj-snapshot -d ~/Documents/default.connections
 
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo systemctl daemon-reload
+sudo systemctl enable ajsnapshot.service
+sudo systemctl start ajsnapshot.service
 ```
 
-- If you want to enable the client ajsnapshot to run on boot: `sudo systemctl enable ajsnapshot.service`
+- If you want to savea ajsnapshot file run: `aj-snapshot -f ~/Documents/default.connections`
 
 ### Install Samba server
 
