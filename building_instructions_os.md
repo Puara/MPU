@@ -573,7 +573,7 @@ cd aj-snapshot-0.9.9
 ./configure
 make
 sudo make install
-cp ~/souces/MPU/default.connections ~/Documents/default.connections
+cp ~/sources/MPU/default.connections ~/Documents/default.connections
 ```
 
 - To create a snapshot: `aj-snapshot -f ~/Documents/default.connections`
