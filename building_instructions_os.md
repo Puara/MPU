@@ -338,7 +338,7 @@ sudo systemctl start guacd
 - Installing SuperCollider, SC3-Plugins, jackd2 (if needed):
 
 ```bash
-sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 puredata
+sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 qjackctl puredata
 ```
 
 - Installing SATIE:
