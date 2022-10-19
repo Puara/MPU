@@ -570,7 +570,7 @@ EOF
 - Check the last version on the website
 
 ```bash
-sudo apt install -y libmxml-dev
+sudo apt install -y libmxml-dev libasound2-dev libjack-dev
 cd ~/sources
 wget http://downloads.sourceforge.net/project/aj-snapshot/aj-snapshot-0.9.9.tar.bz2
 tar -xvjf aj-snapshot-0.9.9.tar.bz2
@@ -598,6 +598,7 @@ ConditionPathExists=~/Documents/default.connections
 [Service]
 Type=idle
 Restart=always
+User=mpu
 ExecStart=/usr/local/bin/aj-snapshot -d ~/Documents/default.connections
 
 [Install]
@@ -608,7 +609,7 @@ sudo systemctl enable ajsnapshot.service
 sudo systemctl start ajsnapshot.service
 ```
 
-- If you want to savea ajsnapshot file run: `aj-snapshot -f ~/Documents/default.connections`
+- If you want to save a ajsnapshot file run: `aj-snapshot -f ~/Documents/default.connections`
 
 ### Install Samba server
 
