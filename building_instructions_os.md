@@ -13,15 +13,13 @@
     - [Configure AP](#configure-ap)
     - [install Apache Guacamole](#install-apache-guacamole)
     - [Install basic software](#install-basic-software)
-  - [Install KXStudio software](#install-kxstudio-software)
     - [Set Jack to start at boot](#set-jack-to-start-at-boot)
     - [Set Pure Data systemd service](#set-pure-data-systemd-service)
     - [Set SuperCollider systemd service](#set-supercollider-systemd-service)
     - [Set up i3wm](#set-up-i3wm)
-    - [Compiling and running JackTrip on the MPU](#compiling-and-running-jacktrip-on-the-mpu)
     - [Adding a service to start JackTrip server](#adding-a-service-to-start-jacktrip-server)
     - [Adding a service to start JackTrip client](#adding-a-service-to-start-jacktrip-client)
-    - [Install aj-snapshot](#install-aj-snapshot)
+    - [Make a systemd service for aj-snapshot](#make-a-systemd-service-for-aj-snapshot)
     - [Install Samba server](#install-samba-server)
     - [Make all systemd services available](#make-all-systemd-services-available)
     - [Mapping using jack in CLI](#mapping-using-jack-in-cli)
@@ -62,7 +60,7 @@
 Alternatively, you can copy and paste the code block below:
 
 ```bash
-sudo apt install -y tmux
+sudo apt install -y tmux git
 mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
 cd ~/sources/MPU &&\
@@ -95,8 +93,8 @@ sudo sed -i '$a Authentication=VncAuth' /root/.vnc/config.d/vncserver-x11
 ### Update OS, install basic apps, and install i3wm as an alternative window manager
 
 ```bash
-sudo apt update -y && sudo apt upgrade -y &&\
-sudo apt install -y i3 i3blocks htop vim feh x11-utils git git-lfs fonts-font-awesome
+sudo apt update -y && sudo apt upgrade -y
+sudo apt install -y i3 i3blocks htop vim feh x11-utils git-lfs fonts-font-awesome jacktrip
 ```
 
 - Update desktop alternatives and select i3 as the default window manager:
@@ -338,7 +336,7 @@ sudo systemctl start guacd
 - Installing SuperCollider, SC3-Plugins, jackd2 (if needed):
 
 ```bash
-sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 qjackctl puredata
+sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmapper jackd2 qjackctl puredata aj-snapshot
 ```
 
 - Installing SATIE:
@@ -347,56 +345,6 @@ sudo apt install -y supercollider sc3-plugins libmapper python3-netifaces webmap
 cd ~/sources
 git clone https://gitlab.com/sat-mtl/tools/satie/satie.git
 echo "Quarks.install(\"SC-HOA\");Quarks.install(\"~/sources/satie\")" | sclang
-```
-
-## Install KXStudio software
-
-- Install Cadence:
-
-```bash
-sudo apt -y install pyqt5-dev-tools libqt5webkit5-dev python3-pyqt5.qtsvg python3-pyqt5.qtwebkit python3-dbus.mainloop.pyqt5 python3-rdflib libmagic-dev liblo-dev
-cd ~/sources
-git clone https://github.com/falkTX/Cadence.git
-cd Cadence
-```
-
-- Modify the compilation flags in `Makefile.mk`:
-
-```bash
-sudo sed -i 's/'\
-'BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra/'\
-'# BASE_FLAGS  = -O3 -ffast-math -mtune=generic -msse -mfpmath=sse -Wall -Wextra\n'\
-'BASE_FLAGS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -Wall -Wextra'\
-'/' c++/Makefile.mk
-```
-
-```bash
-make
-sudo make install
-```
-
-- Install Carla:
-
-```bash
-sudo apt install -y liblo-dev ffmpeg libmagic-dev pyqt5-dev pyqt5-dev-tools
-cd ~/sources
-git clone https://github.com/falkTX/Carla
-cd Carla
-```
-
-- Modify the compilation flags in `Makefile.mk`:
-
-```bash
-sudo sed -i 's/'\
-'BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections/'\
-'# BASE_OPTS  = -O3 -ffast-math -mtune=generic -msse -msse2 -mfpmath=sse -fdata-sections -ffunction-sections\n'\
-'BASE_OPTS  = -O3 -ffast-math -mtune=native -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fdata-sections -ffunction-sections'\
-'/' source/Makefile.mk
-```
-
-```bash
-make
-sudo make install
 ```
 
 ### Set Jack to start at boot
@@ -431,14 +379,13 @@ After=sound.target
 [Service]
 User=mpu
 Environment="JACK_NO_AUDIO_RESERVATION=1"
-ExecStart=/usr/bin/jackd -P80 -t2000 -dalsa -dhw:1 -p256 -n2 -r48000 -s &
+ExecStart=/usr/bin/jackd --realtime -P80 -t2000 -dalsa -dhw:1 -p256 -n2 -r48000 -s &
 
 [Install]
 WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
 sudo systemctl enable jackaudio.service
-sudo systemctl start jackaudio.service
 ```
 
 - Some commands:
@@ -502,23 +449,6 @@ sudo sed -i -e "s/MPU/MPUXXX/" /etc/i3status.conf
 
 - OBS: for checking Font Awesome: https://fontawesome.com/v5/cheatsheet
 
-### Compiling and running JackTrip on the MPU
-
-- More info at https://www.jacktrip.org/
-- Dependencies: `sudo apt install libjack-jackd2-dev librtaudio-dev`
-- Extra package to test latency: `sudo apt install -y jack-delay`
-
-```bash
-sudo apt install -y libjack-jackd2-dev librtaudio-dev jack-delay libqt5websockets5-dev libqt5svg5* libqt5networkauth5-dev
-cd ~/sources
-git clone https://github.com/jacktrip/jacktrip.git
-cd ~/sources/jacktrip
-./build
-export JACK_NO_AUDIO_RESERVATION=1
-```
-
-- To manually use as a client with IP address: `./jacktrip -c [xxx.xx.xxx.xxx]`, or with name: `./jacktrip -c mpuXXX.local`
-
 ### Adding a service to start JackTrip server
 
 - OBS: client name is the name of the other machine
@@ -562,24 +492,11 @@ EOF
 ```
 
 - If you want to enable the client, disable the service and run `sudo systemctl enable jacktrip_client.service`
+- To manually use as a client with IP address: `./jacktrip -c [xxx.xx.xxx.xxx]`, or with name: `./jacktrip -c mpuXXX.local`
 
-### Install aj-snapshot
+### Make a systemd service for aj-snapshot
 
 - More info at [http://aj-snapshot.sourceforge.net/](http://aj-snapshot.sourceforge.net/)
-
-- Check the last version on the website
-
-```bash
-sudo apt install -y libmxml-dev libasound2-dev libjack-dev
-cd ~/sources
-wget http://downloads.sourceforge.net/project/aj-snapshot/aj-snapshot-0.9.9.tar.bz2
-tar -xvjf aj-snapshot-0.9.9.tar.bz2
-cd aj-snapshot-0.9.9
-./configure
-make
-sudo make install
-cp ~/sources/MPU/default.connections ~/Documents/default.connections
-```
 
 - To create a snapshot: `aj-snapshot -f ~/Documents/default.connections`
 - To remove all Jack connections: `aj-snapshot -xj`
