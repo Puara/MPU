@@ -44,7 +44,7 @@ Description=Button to OSC Python3 code
 After=multi-user.target
 
 [Service]
-WorkingDirectory= /home/pi/sources/lcd/
+WorkingDirectory= ~/sources/MPU/python/
 User=pi
 Type=idle
 ExecStart=/usr/bin/python3 ~/sources/MPU/python/buttonOSC.py
@@ -55,4 +55,28 @@ EOF
 sudo chmod 644 /lib/systemd/system/buttonOSC.service
 sudo systemctl daemon-reload
 sudo systemctl enable buttonOSC.service
+```
+
+## Set status bar
+
+```bash
+sudo apt install python3-rpi.gpio python3-gpiozero
+sudo pip3 install osc4py3
+cat <<- "EOF" | sudo tee /lib/systemd/system/status.service
+[Unit]
+Description=Status bar OSC Python3 code
+After=multi-user.target
+
+[Service]
+WorkingDirectory= ~/sources/MPU/python/
+User=pi
+Type=idle
+ExecStart=/usr/bin/python3 ~/sources/MPU/python/status.py
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo chmod 644 /lib/systemd/system/status.service
+sudo systemctl daemon-reload
+sudo systemctl enable status.service
 ```
