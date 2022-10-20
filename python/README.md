@@ -60,8 +60,6 @@ sudo systemctl enable buttonOSC.service
 ## Set status bar
 
 ```bash
-sudo apt install python3-rpi.gpio python3-gpiozero
-sudo pip3 install osc4py3
 cat <<- "EOF" | sudo tee /lib/systemd/system/status.service
 [Unit]
 Description=Status bar OSC Python3 code
