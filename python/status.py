@@ -16,7 +16,7 @@ osc_udp_client("0.0.0.0", 20000, "lcd")
 
 def updateStatus():
     ipAdress = subprocess.getoutput("ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'")
-    msgIP = oscbuildparse.OSCMessage("/lcd", ",sii", [ipAdress, 4, 20-len(ipAdress)])
+    msgIP = oscbuildparse.OSCMessage("/lcd", ",sii", [ipAdress, 4, 21-len(ipAdress)])
     currentHostname = subprocess.getoutput("hostname").upper()
     if len(ipAdress) >= 15:
         currentHostname = currentHostname[3:]
