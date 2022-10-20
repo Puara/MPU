@@ -22,6 +22,7 @@
     - [Make a systemd service for aj-snapshot](#make-a-systemd-service-for-aj-snapshot)
     - [Install Samba server](#install-samba-server)
     - [Make all systemd services available](#make-all-systemd-services-available)
+    - [Optimize boot time](#optimize-boot-time)
     - [Mapping using jack in CLI](#mapping-using-jack-in-cli)
     - [Latency tests](#latency-tests)
     - [Jack available commands](#jack-available-commands)
@@ -377,9 +378,11 @@ Description=JACK Audio
 After=sound.target
 
 [Service]
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
 User=mpu
 Environment="JACK_NO_AUDIO_RESERVATION=1"
-ExecStart=/usr/bin/jackd --realtime -P80 -t2000 -dalsa -dhw:1 -p256 -n2 -r48000 -s &
+ExecStart=/usr/bin/jackd -R -P95 -t2000 -dalsa -dhw:1 -p256 -n2 -r48000 -s &
 
 [Install]
 WantedBy=multi-user.target
@@ -577,6 +580,27 @@ sudo systemctl enable smbd.service
 
 ```bash
 sudo systemctl daemon-reload
+```
+
+### Optimize boot time
+
+- Disable bluetooth and hciuart:
+
+```bash
+sudo sed  -i -e '$a\\n# Disable bluetooth (fast boot time)\ndtoverlay=disable-bt' /boot/config.txt
+sudo systemctl disable hciuart.service
+```
+
+- Disable Modem Manager service. If using radio communication (2g, 3g, 4g) or USB devices that use radio, re-enabling it might be needed
+
+```bash
+sudo systemctl disable ModemManager.service
+```
+
+- Disable Samba NetBIOS name server daemon. If NETBIOS is needed, re-enable it
+
+```bash
+sudo systemctl disable nmbd.service
 ```
 
 ### Mapping using jack in CLI
