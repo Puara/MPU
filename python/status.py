@@ -20,7 +20,7 @@ def updateStatus():
     message = currentHostname+" "+ipAdress
     if len(message) > 20:
         message = message[3:]
-    messageOSC = oscbuildparse.OSCMessage("/lcd", ",sii", [message, 4, 21-len(ipAdress)])
+    messageOSC = oscbuildparse.OSCMessage("/lcd", ",sii", [message, 4, 21-len(message)])
     osc_send(messageOSC, "lcd")
     osc_process()
     threading.Timer(30, updateStatus).start() # scheduling event every 30 seconds
