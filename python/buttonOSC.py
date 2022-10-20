@@ -46,7 +46,7 @@ parser.add_argument('-n', '--namespace', dest='namespace', type=str, default="/g
 
 argumentos = parser.parse_args()
 
-buttonPin = [0,27,5,22] # use BCM (GPIO) numbers!
+buttonPin = [0,27,22,5] # use BCM (GPIO) numbers!
 debounce_time = 0.05 # bouncetime in seconds
 
 # Start the system.

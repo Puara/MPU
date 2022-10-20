@@ -1,3 +1,6 @@
+# Python code to drive the LCD
+# Edu Meneses, 2021, IDMIL, CIRMMT, McGill University
+
 # The wiring for the LCD is as follows (SPU with PiSound):
 #
 # LCD pin    Rpi4 BOARD pin  function
@@ -29,10 +32,6 @@
 #import
 import RPi.GPIO as GPIO
 import time
-#from time import sleep
-#from signal import pause
-#from datetime import datetime
-#from time import strftime
 from threading import Event
 import socket
 import os
@@ -85,8 +84,12 @@ def lcd_commands(text, line, column):
         lcd_byte(0x01,LCD_CMD)
         first_message = False
     LCD_TAM = len(text)
-    if text == 'clear':
+    if text == 'clearall':
         lcd_byte(0x01,LCD_CMD)
+    if text == 'clear':
+        lcd_string("                    ", LCD_LINE_1)
+        lcd_string("                    ", LCD_LINE_2)
+        lcd_string("                    ", LCD_LINE_3)
     else:
         if 1 <= line <= 4 and 1 <= column <= LCD_WIDTH:
             pos = LCD_POS[int(line)] + column - 1
@@ -118,20 +121,19 @@ def main():
     lcd_init()
 
     lcd_byte(0x01,LCD_CMD)
-    lcd_string("GuitarAMI", LCD_LINE_1)
+    lcd_string("MPUXXX", LCD_LINE_1)
     lcd_string("Booting...",LCD_LINE_3)
 
     # time.sleep(10.0) # 1 second delay
     lcd_byte(0x01,LCD_CMD)
 
-    lcd_string("GuitarAMI", LCD_LINE_1)
-    lcd_string("Boot Complete", LCD_LINE_3)
-    lcd_string("Have Fun!", LCD_LINE_4)
+    lcd_string("MPUXXX", LCD_LINE_1)
+    lcd_string("Boot Complete", LCD_LINE_2)
+    lcd_string("Have Fun!", LCD_LINE_3)
 
-    #while True:
-    #    forever = Event(); forever.wait()
     while True:
         osc_process()
+        time.sleep(0.2) # sane sleep time of 0.1 seconds
 
 def lcd_string(message,pos):
     # Send string to display
