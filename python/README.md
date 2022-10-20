@@ -13,17 +13,17 @@ sudo pip3 install osc4py3
 cat <<- "EOF" | sudo tee /lib/systemd/system/lcd.service
 
 [Unit]
- Description=OSC to LCD
- After=multi-user.target
+Description=OSC to LCD
+After=multi-user.target
 
- [Service]
- Type=idle
- ExecStart=/usr/bin/python3 ~/sources/MPU/python/lcd.py
+[Service]
+User=mpu
+Type=idle
+ExecStart=/usr/bin/python ~/sources/MPU/python/lcd.py
 
- [Install]
- WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 EOF
-sudo chmod 644 /lib/systemd/system/lcd.service
 sudo systemctl daemon-reload
 sudo systemctl enable lcd.service
 ```
@@ -44,15 +44,13 @@ Description=Button to OSC Python3 code
 After=multi-user.target
 
 [Service]
-WorkingDirectory= ~/sources/MPU/python/
-User=pi
+User=mpu
 Type=idle
-ExecStart=/usr/bin/python3 ~/sources/MPU/python/buttonOSC.py
+ExecStart=/usr/bin/python3 /home/mpu/sources/MPU/python/buttonOSC.py
 
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo chmod 644 /lib/systemd/system/buttonOSC.service
 sudo systemctl daemon-reload
 sudo systemctl enable buttonOSC.service
 ```
@@ -66,15 +64,13 @@ Description=Status bar OSC Python3 code
 After=multi-user.target
 
 [Service]
-WorkingDirectory= ~/sources/MPU/python/
-User=pi
+User=mpu
 Type=idle
-ExecStart=/usr/bin/python3 ~/sources/MPU/python/status.py
+ExecStart=/usr/bin/python3 /home/mpu/sources/MPU/python/status.py
 
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo chmod 644 /lib/systemd/system/status.service
 sudo systemctl daemon-reload
 sudo systemctl enable status.service
 ```
