@@ -546,7 +546,7 @@ sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.orig
 ```bash
 cat <<- "EOF" | sudo tee /etc/samba/smb.conf
 [global]
-        server string = MPU
+        server string = MPUXXX
         server role = standalone server
         interfaces = lo eth0 wlan0
         bind interfaces only = no
