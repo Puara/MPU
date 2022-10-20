@@ -46,6 +46,8 @@ sudo sed -i -e "s/MPU.\{3\}/MPU${MPUid}/" /etc/i3status.conf
 
 sudo sed -i -e "s/MPU.\{3\}/MPU${MPUid}/" /etc/samba/smb.conf
 
+sudo sed -i -e "s/MPU.\{3\}/MPU${MPUid}/" ~/sources/MPU/python/lcd.py
+
 echo "Done renaming the MPU."
 echo
 

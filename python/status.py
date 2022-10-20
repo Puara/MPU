@@ -16,8 +16,13 @@ osc_udp_client("0.0.0.0", 20000, "lcd")
 
 def updateStatus():
     ipAdress = subprocess.getoutput("ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'")
-    msgIP = oscbuildparse.OSCMessage("/lcd", ",sii", [ipAdress, 4, 1])
-    bun = oscbuildparse.OSCBundle(oscbuildparse.OSC_IMMEDIATELY,[msgIP])
+    msgIP = oscbuildparse.OSCMessage("/lcd", ",sii", [ipAdress, 4, 20-len(ipAdress)])
+    currentHostname = subprocess.getoutput("hostname").upper()
+    if len(ipAdress) >= 15:
+        currentHostname = currentHostname[3:]
+    msgHostname = oscbuildparse.OSCMessage("/lcd", ",sii", [currentHostname, 4, 1])
+    
+    bun = oscbuildparse.OSCBundle(oscbuildparse.OSC_IMMEDIATELY,[msgIP,msgHostname])
     osc_send(bun, "lcd")
     osc_process()
     threading.Timer(5, updateStatus).start() # scheduling event every 5 seconds
