@@ -50,5 +50,6 @@ sudo sed -i -e "s/MPU.\{3\}/MPU${MPUid}/" ~/sources/MPU/python/lcd.py
 
 echo "Done renaming the MPU."
 echo
+echo "Please reboot the system for all changes to take effect."
 
 trap - EXIT
