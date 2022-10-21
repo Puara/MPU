@@ -66,6 +66,7 @@ mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
 cd ~/sources/MPU &&\
 sudo chmod +x building_script.sh &&\
+sudo chmod +x rename_mpu.sh &&\
 ./building_script.sh &&\
 ./run_script.sh
 ```
