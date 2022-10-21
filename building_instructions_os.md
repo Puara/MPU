@@ -405,10 +405,13 @@ cat <<- "EOF" | sudo tee /lib/systemd/system/puredata.service
 [Unit]
 Description=Pure Data
 After=sound.target jackaudio.service
-ConditionPathExists=~/Documents/default.pd
+ConditionPathExists=/home/mpu/Documents/default.pd
 
 [Service]
-ExecStart=/usr/local/bin/pd -nogui -noprefs -rt -jack -inchannels 2 -outchannels 2 ~/Documents/default.pd
+LimitRTPRIO=infinity
+LimitMEMLOCK=infinity
+User=mpu
+ExecStart=pd -nogui -noprefs -rt -jack -inchannels 2 -outchannels 2 ~/Documents/default.pd
 
 [Install]
 WantedBy=multi-user.target
@@ -420,22 +423,25 @@ sudo systemctl start puredata.service
 
 ### Set SuperCollider systemd service
 
+- OBS: starting as a user service to allow required access
+
 ```bash
-cat <<- "EOF" | sudo tee /lib/systemd/system/supercollider.service
+cat <<- "EOF" | tee ~/.config/systemd/user/supercollider.service
 [Unit]
 Description=SuperCollider
-After=sound.target jackaudio.service
-ConditionPathExists=~/Documents/default.scd
+After=multi-user.target
 
 [Service]
-ExecStart=/usr/local/bin/sclang -D ~/Documents/default.scd
+Type=idle
+Restart=always
+ExecStart=sclang -D /home/mpu/Documents/default.scd
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 EOF
-sudo systemctl daemon-reload
-sudo systemctl enable supercollider.service
-sudo systemctl start supercollider.service
+sudo chmod 644 ~/.config/systemd/user/supercollider.service
+systemctl --user daemon-reload
+systemctl --user enable --now supercollider.service
 ```
 
 ### Set up i3wm
@@ -514,7 +520,7 @@ cat <<- "EOF" | sudo tee /lib/systemd/system/ajsnapshot.service
 [Unit]
 Description=AJ-Snapshot
 After=sound.target jackaudio.service
-ConditionPathExists=~/Documents/default.connections
+ConditionPathExists=/home/mpu/Documents/default.connections
 
 [Service]
 Type=idle
