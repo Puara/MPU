@@ -426,10 +426,12 @@ sudo systemctl start puredata.service
 - OBS: starting as a user service to allow required access
 
 ```bash
+mkdir -p ~/.config/systemd/user
 cat <<- "EOF" | tee ~/.config/systemd/user/supercollider.service
 [Unit]
 Description=SuperCollider
 After=multi-user.target
+ConditionPathExists=/home/mpu/Documents/default.scd
 
 [Service]
 Type=idle
