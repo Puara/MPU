@@ -18,6 +18,7 @@ def updateStatus():
     ipAdress = subprocess.getoutput("ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'")
     currentHostname = subprocess.getoutput("hostname").upper()
     message = currentHostname+" "+ipAdress
+    message = message.rjust(20, ' ')
     if len(message) > 20:
         message = message[3:]
     messageOSC = oscbuildparse.OSCMessage("/lcd", ",sii", [message, 4, 21-len(message)])
