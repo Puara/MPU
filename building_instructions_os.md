@@ -156,7 +156,7 @@ EOF
 - Configure a static IP for the wlan0 interface:
 
 ```bash
-sudo sed -i -e 's/hostname/mpuXXX/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.4.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
+sudo sed -i -e 's/hostname/mpuXXX/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.5.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
 ```
 
 - Set hostapd to read the config file:
@@ -181,7 +181,7 @@ sudo unlink /etc/resolv.conf &&
 echo nameserver 8.8.8.8 | sudo tee /etc/resolv.conf &&
 cat <<- "EOF" | sudo tee /etc/dnsmasq.conf
 interface=wlan0
-dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
+dhcp-range=192.168.5.2,192.168.5.20,255.255.255.0,24h
 EOF
 ```
 
@@ -496,7 +496,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=~/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
+ExecStart=~/sources/jacktrip/builddir/jacktrip -c 192.168.5.1 --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target
