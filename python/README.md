@@ -18,7 +18,7 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=python ~/sources/MPU/python/lcd.py
+ExecStart=python /home/mpu/sources/MPU/python/lcd.py
 
 [Install]
 WantedBy=multi-user.target
