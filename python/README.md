@@ -18,7 +18,7 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=/usr/bin/python ~/sources/MPU/python/lcd.py
+ExecStart=python ~/sources/MPU/python/lcd.py
 
 [Install]
 WantedBy=multi-user.target
@@ -45,7 +45,7 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=/usr/bin/python3 /home/mpu/sources/MPU/python/buttonOSC.py
+ExecStart=python /home/mpu/sources/MPU/python/buttonOSC.py
 
 [Install]
 WantedBy=multi-user.target
@@ -65,7 +65,7 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=/usr/bin/python3 /home/mpu/sources/MPU/python/status.py
+ExecStart=python /home/mpu/sources/MPU/python/status.py
 
 [Install]
 WantedBy=multi-user.target
