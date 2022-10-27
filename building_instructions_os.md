@@ -61,7 +61,7 @@
 Alternatively, you can copy and paste the code block below:
 
 ```bash
-sudo apt install -y tmux git
+sudo apt install -y tmux git liblo-tools
 mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
 cd ~/sources/MPU &&\
