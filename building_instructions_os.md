@@ -199,17 +199,6 @@ sudo sed -i '\,ExecStart=/lib/systemd/systemd-networkd-wait-online, s,$, --any,'
 sudo systemctl daemon-reload
 ```
 
-- Enable Routing and IP Masquerading
-
-```bash
-cat <<- "EOF" | sudo tee /etc/sysctl.d/routed-ap.conf
-# Enable IPv4 routing
-net.ipv4.ip_forward=1
-EOF
-sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-sudo netfilter-persistent save
-```
-
 ### install Apache Guacamole
 
 - More info at https://guacamole.apache.org
