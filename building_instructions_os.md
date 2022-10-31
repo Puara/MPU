@@ -65,7 +65,7 @@ sudo apt install -y tmux git liblo-tools
 mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
 cd ~/sources/MPU/scripts &&\
-sudo chmod +x building_script.sh rename_mpu.sh change_subnet.sh &&\
+sudo chmod +x building_script.sh rename_mpu.sh change_ipblock.sh &&\
 ./building_script.sh &&\
 ./run_script.sh
 ```
