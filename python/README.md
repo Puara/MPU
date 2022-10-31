@@ -7,7 +7,6 @@ Instruction on how to build the GuitarAMI MPU can be found in the [Media](./buil
 ## Set LCD
 
 ```bash
-mkdir ~/sources/lcd
 sudo apt install python3-rpi.gpio
 sudo pip3 install osc4py3
 cat <<- "EOF" | sudo tee /lib/systemd/system/lcd.service
@@ -19,13 +18,13 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=/usr/bin/python ~/sources/MPU/python/lcd.py
+ExecStart=python /home/mpu/sources/MPU/python/lcd.py
 
 [Install]
 WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
-sudo systemctl enable lcd.service
+sudo systemctl enable --now lcd.service
 ```
 
 - To send messages to the LCD use `/lcd message 0 0`, sent to port 20000. The first number represents the line and the second the column. Example using oscsend: `oscsend 127.0.0.1 20000 /lcd sii test_message 2 1`
@@ -46,13 +45,13 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=/usr/bin/python3 /home/mpu/sources/MPU/python/buttonOSC.py
+ExecStart=python /home/mpu/sources/MPU/python/buttonOSC.py
 
 [Install]
 WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
-sudo systemctl enable buttonOSC.service
+sudo systemctl enable --now buttonOSC.service
 ```
 
 ## Set status bar
@@ -66,11 +65,11 @@ After=multi-user.target
 [Service]
 User=mpu
 Type=idle
-ExecStart=/usr/bin/python3 /home/mpu/sources/MPU/python/status.py
+ExecStart=python /home/mpu/sources/MPU/python/status.py
 
 [Install]
 WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
-sudo systemctl enable status.service
+sudo systemctl enable --now status.service
 ```

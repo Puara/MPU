@@ -55,7 +55,7 @@ echo
 
 read -r -s -p $'Press enter to continue...\n\n'
 
-cp building_instructions_os.md building_script.tmp
+cp ../building_instructions_os.md building_script.tmp
 
 sed -i                                        \
     -e "1i ${header}"                         \

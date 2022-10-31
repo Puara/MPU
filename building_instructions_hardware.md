@@ -1,5 +1,12 @@
 # Hardware building instructions (GuitarAMI MPU)
 
+- [Hardware building instructions (GuitarAMI MPU)](#hardware-building-instructions-guitarami-mpu)
+  - [BOM](#bom)
+  - [Connections](#connections)
+    - [Fe-Pi](#fe-pi)
+    - [Pisound](#pisound)
+  - [Instructions](#instructions)
+
 ## BOM
 
 | Qty | Description                                          | Online Reference                                                                                     |
@@ -15,9 +22,9 @@
 | 1   | Male to Female GPIO Ribbon Cable                     | https://www.buyapi.ca/product/male-to-female-gpio-ribbon-cable/                                      |
 | 1   | 3D print filament -  PLA 1.75mm                      | https://filaments.ca/                                                                                |
 
-## Conections
+## Connections
 
-### FePi
+### Fe-Pi
 
 | Raspberry Pi 4B   | LCD      | pot    | switch 1 | switch 2 | switch 3 |
 | ----------------- | -------- | ------ | -------- | -------- | -------- |
@@ -63,7 +70,7 @@
 | Pin 40, GPIO 21   |          |        |          |          |          |
 |                   | 3        | middle |          |          |          |
 
-- The audio interface is connected by ribbon cable
+- The audio interface is connected by the ribbon cable
 
 ### Pisound
 
@@ -111,7 +118,7 @@
 | Pin 40, GPIO 21   |          |        |          |          |          | X       |        |
 |                   | 3        | middle |          |          |          |         | gray   |
 
-- The audio interface is connected by ribbon cable
+- The audio interface is connected by the ribbon cable
 
 ## Instructions
 

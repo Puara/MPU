@@ -61,12 +61,11 @@
 Alternatively, you can copy and paste the code block below:
 
 ```bash
-sudo apt install -y tmux git
+sudo apt install -y tmux git liblo-tools
 mkdir ~/sources && cd ~/sources &&\
 git clone https://github.com/Puara/MPU.git &&\
-cd ~/sources/MPU &&\
-sudo chmod +x building_script.sh &&\
-sudo chmod +x rename_mpu.sh &&\
+cd ~/sources/MPU/scripts &&\
+sudo chmod +x building_script.sh rename_mpu.sh change_subnet.sh &&\
 ./building_script.sh &&\
 ./run_script.sh
 ```
@@ -156,7 +155,7 @@ EOF
 - Configure a static IP for the wlan0 interface:
 
 ```bash
-sudo sed -i -e 's/hostname/mpuXXX/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.4.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
+sudo sed -i -e 's/hostname/mpuXXX/' -e '$a\\ninterface wlan0\n    static ip_address=192.168.5.1/24\n    nohook wpa_supplicant\n    #denyinterfaces eth0\n    #denyinterfaces wlan0\n' /etc/dhcpcd.conf
 ```
 
 - Set hostapd to read the config file:
@@ -181,7 +180,7 @@ sudo unlink /etc/resolv.conf &&
 echo nameserver 8.8.8.8 | sudo tee /etc/resolv.conf &&
 cat <<- "EOF" | sudo tee /etc/dnsmasq.conf
 interface=wlan0
-dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
+dhcp-range=192.168.5.2,192.168.5.20,255.255.255.0,24h
 EOF
 ```
 
@@ -426,10 +425,12 @@ sudo systemctl start puredata.service
 - OBS: starting as a user service to allow required access
 
 ```bash
+mkdir -p ~/.config/systemd/user
 cat <<- "EOF" | tee ~/.config/systemd/user/supercollider.service
 [Unit]
 Description=SuperCollider
 After=multi-user.target
+ConditionPathExists=/home/mpu/Documents/default.scd
 
 [Service]
 Type=idle
@@ -494,7 +495,7 @@ After=multi-user.target
 [Service]
 Type=idle
 Restart=always
-ExecStart=~/sources/jacktrip/builddir/jacktrip -c 192.168.4.1 --clientname jacktrip_client
+ExecStart=~/sources/jacktrip/builddir/jacktrip -c 192.168.5.1 --clientname jacktrip_client
 
 [Install]
 WantedBy=default.target

@@ -1,20 +1,22 @@
-# GuitarAMI Sound Processing Unit (MPU) user guide
+# GuitarAMI Processing Unit (MPU) user guide
 
 ![MPUs](./images_mpu/spus.jpg "MPUs")
 
-- [GuitarAMI Sound Processing Unit (MPU) user guide](#guitarami-sound-processing-unit-mpu-user-guide)
+- [GuitarAMI Processing Unit (MPU) user guide](#guitarami-processing-unit-mpu-user-guide)
   - [Overview](#overview)
-  - [Operation modes](#operation-modes)
-    - [Standalone mode](#standalone-mode)
-    - [Client mode](#client-mode)
   - [Configuring the MPU behavior](#configuring-the-mpu-behavior)
-    - [Accessing the plugin host](#accessing-the-plugin-host)
-    - [Accessing SuperCollider and Pure Data patches](#accessing-supercollider-and-pure-data-patches)
+    - [Accessing the MPU](#accessing-the-mpu)
+    - [uploading SuperCollider and Pure Data patches](#uploading-supercollider-and-pure-data-patches)
+  - [Information about audio interfaces](#information-about-audio-interfaces)
   - [Information](#information)
 
 ## Overview
 
-The MPU overview:
+This user guide describes the GuitarAMI MPU usage, however, the software aspects of this guide are valid for any Raspberry Pi-based MPU, including MPUs set to use external audio interfaces.
+
+The MPU is fully hackeable and runs a customized version of the [Raspberry Pi OS](https://www.raspberrypi.com/software/).
+
+The GuitarAMI MPU overview:
 
 ![Overview](./images_mpu/overview1.jpg "Overview")
 
@@ -42,112 +44,109 @@ The MPU overview:
 11. Audio + video composite 3.5 mm jack
 12. USB 2.0 ports
 13. USB 3.0 ports
-14. Gigabit ethernet port
+14. Gigabit Ethernet port
 15. MIDI IN / OUT
 16. micro-SD slot
 
-The MPU also has a built in LCD display:
+The GuitarAMI version of the MPU also has a built-in LCD display:
 
 ![Boot](./images_mpu/display_boot.jpg "MPU boot")
 
-The display shows when the MPU finishes the booting process, and provide visual feedback according to the program. The first three lines can be used freely, but the 4th line is reserved for system information:
+The display shows when the MPU finishes the booting process and provides visual feedback according to the program. The first three lines can be used freely, but the 4th line is reserved for system information:
 
-![Time-machine](./images_mpu/display_tm.jpg "Time-machine screen")
+The fourth line indicates **MPU ID**** and **ethernet IP address**.
+The ID can be used to access the MPU through SSH, VNC, and VNC-over-browser.
+The IP address can be used to interact with the MPU if the devices are connected through ethernet.
+If using the MPU's access point (hotspot), you can use the Wi-Fi IP 192.168.5.1, configured by default.
+It is also possible to change the IP address using a script located at `~/sources/MPU/scripts/chande_ipblock.sh`.
 
-The fourth line indicates: **SC | PD | WiFi mode | Pedalboard**
+The LCD and status services come disabled by default. You can enable them with the command `sudo systemctl enable --now lcd.service status.service`.
 
-- The **SC** indicator will appear if a [SuperCollider](https://supercollider.github.io/) code is running
-- The **PD** indicator will appear if a [Pure Data](https://puredata.info/) patch is running
-- The **WiFi mode** indicator show the WiFi operation mode: **STA** for station mode (MPU as client) and **AP** for access point (MPU as a hotspot)
-- The **PedalBoard** indicator shows which pedalboard is loaded on the plugin host. Check the [Accessing the plugin host](#accessing-the-plugin-host) session for more information
-
-It is also adviseable to have the GuitarAMI module batery level indicated on screen. This information, and any other visual feedback, needs to be manually added using SuperCollider or Pure Data. In this example, the module's batery level is indicated on the upper-left corner.
-
-## Operation modes
-
-To change between the modes, press and hold the interface button (6) for 3 seconds. You will see a red light under the interface button. The WiFi mode will change between **AP** and **STA** in a couple of seconds.
-
-### Standalone mode
-
-The MPU shows the WiFi mode as **AP**. In this mode, you can pair a GuitarAMI module (or any device sending OSC messages trough WiFi) and use the GuitarAMI without the need of a computer.
-
-- Connect the audio INs and OUTs as desired (remember to lower the volume down as a security measure)
-- Connect the MPU to the power outlet using the USB-C connector
-- Wait for the MPU to boot
-- Turn the paired GuitarAMI module ON
-- Have fun!
-
-### Client mode
-
-The MPU shows the WiFi mode as **STA**. In this mode, you can use a SUpercollider or Pure Data patch to process you gestural data and send to another computer over the Network. You may also want to connect the MPU's audio INs and OUTs to your computer if you plan to have some embedded DSP processes.
-
-> ⚠️ **Warning**: When using the GuitarAMI module in client mode, you have to configure the GuitarAMI module to connect in the same network as the MPU. Alternatively, you can send messages directly to other devices by configuring a secondary IP address and port on your GuitarAMi module to send OSC messages.
+For users connecting [Puara](https://github.com/Puara)-compatible devices, it is also advisable to have the module battery level indicated on the screen.
+This information, and any other visual feedback, needs to be manually added using SuperCollider, Pure Data, or any software/language able to send OSC messages to the LCD.
 
 ## Configuring the MPU behavior
 
 Before trying to access the MPU configuration options:
 
 - Make sure you are in the same network as your MPU
-  - If using *standalone mode*, connect to the **MPUXXX** network (replace XXX for your MPU's ID number). The default password is `mappings`
-  - If using *client mode*, connect both the MPU and the computer to the same network
-
-The MPU is configured as follows:
-
-![Audio Connection](./images_mpu/audio.jpg "Audio Connection")
+- Connect to the **MPUXXX** network (replace XXX with your MPU's ID number). The default password is `mappings`
 
 You can:
 
-- Enable or disable SuperCollider
-- Enable or disable Pure Data
-- Load any plugins on the plugin host. If you want to disable the plugin host you can break all audio connections
+- Enable or disable the SuperCollider service using the command `systemctl --user enable supercollider.service`
+- Enable or disable the Pure Data service using the command `sudo systemctl enable puredata.service`
 
-### Accessing the plugin host
+Both services will run automatically on boot after being enabled and will look for `~/Documents/default.scd` and `~/Documents/default.pd` respectively.
+If those files are not present, the service will disable itself until the next boot.
 
-Once you connect to the MPU network, you can access the LV2 plugin host by opening your web browser and typing [http://mpuXXX.local/](http://mpuXXX.local/) (replace XXX by your MPU ID number). Alternatively, you can use the MPU's IP address: [http://172.24.1.1/](http://172.24.1.1/). You will be taken to the plugin host (Modep) main page on the MPU:
+### Accessing the MPU
 
-![Plugin host web](./images_mpu/plugin_host.jpg "Plugin host web")
+Once you connect to the MPU network, either using the AP or Ethernet cable (connect both the MPU and your computer in the same network), you can access the device using:
 
-The plugin is based on the [Modep](https://blokas.io/modep/) (Blokas Labs/Mod Devices). The complete documentation ca be fount at [https://blokas.io/modep/docs/](https://blokas.io/modep/docs/).
+- VNC and VNC-over-browser with the address `mpu001.local` (change the MPU's ID accordingly)
+- SSH (with or without X11-Forwarding) using `ssh -X mpu@mpu001.local` (change the MPU's ID accordingly)
 
-You can set 3 pedalboards at the list entitled **The Button**, and assign them to the interface button (6). Pressing the button once will load the first pedalboard on the list, pressing the button twice will load the second one, and ressing the button three times will load the third pedalboard.
+For both cases, the user is **mpu** and default password **mappings**.
 
-To access the list, you have to choose the **banks** option (botton-left corner):
+![Guacamole login screen](./images_mpu/guacamole_login.png "Guacamole login screen")
 
-![Pedalboards](./images_mpu/pedalboards.jpg "Pedalboards")
+Once logged in, you'll see the main MPU's window:
 
-### Accessing SuperCollider and Pure Data patches
+![VNC-over-browser](./images_mpu/guacamole.png "VNC-over-browser")
 
-SuperCollider and Pure Data files can be accessed using a shared folder over the network. Windows, Linux, and macOS users should see the folders as soon as you connect to the MPU network. These folders are password protected. The user is **patch** and the password **mappings**. In the picture below, the user can access the folders by clicking on `Connect as...` and entering the credentials.
+The status bar will provide some useful information:
 
-![Network Access](./images_mpu/samba1.jpg "Network Access")
+- Wi-Fi IP address
+- Ethernet IP address
+- Free disk (microSD card) space
+- load average (1 min)
+- used RAM
+- date
+- MPU's name/ID
 
-They can also be accessed manually. An example of manual access using macOS on the MPU005:
+To open any application, you can use `Alt+D` and type the name of the software, e.g. `puredata` or `scide` (for the SuperCollider IDE):
 
-Open Finder, click in `Go` and in `Connect to Server...`
+![opening_PD](./images_mpu/opening_PD.png "opening_PD")
 
-![Network Access manual](./images_mpu/samba_manual1.png "Network Access manual")
+Applications registered will open in their own tabs. New applications will open o the current tab.
+To change tabs one can use `Ctrl+0-9`. 
 
-Type the MPUXXX address:
+![PD](./images_mpu/PD.png "PD")
 
-![Network Access manual](./images_mpu/samba_manual2.png "Network Access manual")
+Finally, `Alt+Enter` opens a new terminal window, and most windows can be closed with either `Ctrl+Shift+Q` or a mouse middle click on the bar.
 
-Confirm the server name:
+### uploading SuperCollider and Pure Data patches
 
-![Network Access manual](./images_mpu/samba_manual3.png "Network Access manual")
+Sometimes it is useful to program pathces using the laptop and deploy them later to the MPU.
+The `~/Documents` folder can be accessed using a shared folder over the network (Samba share).
+Windows, Linux, and macOS users should see the folder as soon as they connect to the MPU network.
+This folder is password protected.
+The user is **mpu** and the password **mappings**. In the picture below, the user can access the folders by clicking on `Connect as...` and entering the credentials.
 
-Enter credentials:
+![Network Access](./images_mpu/samba.png "Network Access")
 
-![Network Access manual](./images_mpu/samba_manual4.png "Network Access manual")
+## Information about audio interfaces
 
-Choose the **MPUXXX-Patches** folder:
+Internal audio interfaces using I2S should be enable automatically.
+We don´t recommend installing the PiSound software as it may conflict with the configured Jack audio service.
 
-![Network Access manual](./images_mpu/samba_manual5.png "Network Access manual")
+For older Fe-Pi audio cards, it may be necessary to enable the interface manually according to the instructions available at [https://fe-pi.com/p/support-and-setup](https://fe-pi.com/p/support-and-setup) (link down in 2021/02/25).
 
-The **default.scd** and **default.pd** files will load automatically on boot. If you don't want to start Supercollider or Pure Data on boot, rename the files to any other name. You can edit the files in your computer, amke backup copies or add new patches to this folder.
+Simply copy and paste/execute the following command:
+
+```bash
+sudo sed -i -e 's/Enable audio (loads snd_bcm2835)/Disable audio (loads snd_bcm2835)/ ; s/dtparam=audio=on/dtparam=audio=off\n\n# Enable Fe-Pi\ndtoverlay=fe-pi-audio/' /boot/config.txt
+```
 
 ## Information
 
 GuitarAMI Sound Processing Unit (MPU) - Raspberry Pi 4B + PiSound
+
+[SAT/Metalab](https://sat.qc.ca/fr/recherche/metalab)
+
 [Input Devices and Music Interaction Laboratory (IDMIL)](http://www.idmil.org/)
+
 [Centre of Interdisciplinary Research In Music Media and Technology (CIRMMT)](http://www.cirmmt.org/)
-February 2021 by [Edu Meneses](http://www.edumeneses.com/)
+
+October 2022 by [Edu Meneses](http://www.edumeneses.com/)
