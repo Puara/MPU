@@ -41,24 +41,20 @@
 ## Prepare SD card
 
 - Download the (Raspberry Pi Imager)[https://www.raspberrypi.com/software/]
-- Flash the Raspberry Pi OS 64 bits into the SD card. Use the configuration tool to set:
+- Flash the Raspberry Pi OS 64 bits into the microSD card. Use the configuration tool to set:
   - Enable ssh
   - set hostname: mpuXXX (replace XXX with the MPU's ID)
   - set user and password (mpu/mappings)
   - insert WiFi credential if needed
-- insert the SD card in the Rpi and turn it on
+- OPTIONAL: if you plan to access your Rpi headlessly, you also need to ensure ssh is enabled on first boot by navigating to the `boot` partition on the microSD card and creating an empty file called **ssh** (e.g., use `touch ssh` in the command line)
+- Insert the microSD card in the Rpi and turn it on
 
 ## First configuration
 
 - First configuration for the Raspberry Pi. Information on available ***raspi-config no interactive*** commands can be found at https://github.com/raspberrypi-ui/rc_gui/blob/master/src/rc_gui.c
 
-- Ssh (with the X11-Forwarding flag) to the Rpi: `ssh -X mpu@<ip_address>` or `ssh -X mpu@mpuXXX.local`. The Rpi might take a longer time to be available to ssh during first boot as it is expanding the filesystem
-- Clone this repository into the Rpi using `mkdir ~/sources && cd ~/sources && git clone https://github.com/Puara/MPU.git`
-- Navigate to the MPU folder: `cd ~/sources/MPU`
-- Update the `run_script.sh` by running `sudo chmod +x building_script.sh` and `./building_script.sh XXX`, where XXX must be replaced by the MPU's ID. You will be asked for the sudo password as the script tries to make run_script.sh executable
-- Run it with `./run_script.sh`. All steps described in the section [MPU Script](#mpu-script) will be performed by the script
-
-Alternatively, you can copy and paste the code block below:
+- Ssh (with the X11-Forwarding flag) to the Rpi: `ssh -X mpu@<ip_address>` or `ssh -X mpu@mpuXXX.local`. The Rpi might take a longer time to be available to ssh during the first boot as it is expanding the filesystem. Obs: it is important to enable X11 forwarding as the installed SuperCollider version needs it to run sclang and install SATIE. 
+- Copy and paste the code block below to automatically run the [MPU Script](#mpu-script) routine:
 
 ```bash
 sudo apt install -y tmux git liblo-tools
@@ -70,6 +66,10 @@ sudo chmod +x building_script.sh rename_mpu.sh change_ipblock.sh &&\
 ./run_script.sh
 ```
 
+- You will be asked to choose an MPU ID before the script starts preparing the OS.
+
+- The next section describes all steps automatically executed by the commands presented above. If you copied and pasted the commands above, you don't need to follow the following instructions and your MPU will be automatically set.
+ 
 ## MPU Script
 
 ### Setting the OS
