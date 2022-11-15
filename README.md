@@ -12,6 +12,11 @@ This project is developed and maintained in a partnership between [SAT/Metalab](
 
 [Media Processing Unit (MPU) - OS](./building_instructions_os.md)
 
+Alternatively, you can download the MPU OS image to use in any Raspberry Pi.
+There's no need to reproduce the hardware of the MPU.
+
+The image can be downloaded in the [Releases](https://gitlab.com/sat-mtl/distribution/rpi-images/-/releases) section](https://gitlab.com/sat-mtl/distribution/rpi-images/-/releases) of the [SAT/Metalab](https://sat.qc.ca/fr/recherche/metalab) maintained [project repository](https://gitlab.com/sat-mtl/distribution/rpi-images).
+
 ### More Info
 
 [https://www.edumeneses.com](https://www.edumeneses.com)
